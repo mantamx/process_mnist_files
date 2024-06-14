@@ -15,9 +15,9 @@ KNearestNeighbors::KNearestNeighbors(MnistDatasetBase&& training_dataset) noexce
 void KNearestNeighbors::runTest
 (
   MnistDatasetBase&& test_dataset
-  , int k
-  , int count_train_items
-  , int count_items_to_test
+  , size_t k
+  , size_t count_train_items
+  , size_t count_items_to_test
   , std::ostream& output
   , OutputMode output_mode
 ) noexcept
@@ -37,10 +37,10 @@ void KNearestNeighbors::runTest
 
   std::vector<std::valarray<double>> test_data{ std::move(test_dataset.scaledFeatureVectors()) };
   std::vector<unsigned char> test_labels{ test_dataset.labels() };
-  const int COUNT_K{ k > 0 && k <= static_cast<int>(_training_data.size()) ? k : 3 };
-  const int COUNT_K_LESS_1{ COUNT_K - 1 };
-  const int COUNT_TEST_DATA{ count_items_to_test <= static_cast<int>(test_dataset.itemCount()) ? count_items_to_test : static_cast<int>(test_dataset.itemCount()) };
-  const int COUNT_TRAINING_DATA{ count_train_items <= static_cast<int>(_training_data.size()) ? count_train_items : static_cast<int>(_training_data.size()) };
+  const size_t COUNT_K{ k > 0 && k <= _training_data.size() ? k : 3 };
+  const size_t COUNT_K_LESS_1{ COUNT_K - 1 };
+  const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
+  const size_t COUNT_TRAINING_DATA{ count_train_items <= _training_data.size() ? count_train_items : _training_data.size() };
   const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
 
   std::vector<double> temp_distance(COUNT_TRAINING_DATA);
@@ -82,7 +82,7 @@ void KNearestNeighbors::runTest
 
   auto start_test = std::chrono::high_resolution_clock::now();
 
-  for (int iTestData{ 0 }, iTrainingData; iTestData < COUNT_TEST_DATA; iTestData++)
+  for (size_t iTestData{ 0 }, iTrainingData; iTestData < COUNT_TEST_DATA; iTestData++)
   {
     // STEP ONE: calculate distances from reference item to each item in training data
     // COST: count_test_data x count_training_data x calculate distance

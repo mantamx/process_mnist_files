@@ -19,8 +19,8 @@ public:
   MnistDatasetBase(MnistDatasetBase&&) = default;
   MnistDatasetBase& operator=(MnistDatasetBase&&) = default;
 
-  int itemCount() const noexcept;
-  int featureVectorSize() const noexcept;
+  size_t itemCount() const noexcept;
+  size_t featureVectorSize() const noexcept;
   unsigned char label(int) const;
   std::vector<unsigned char> labels() const& noexcept;
   std::vector<unsigned char> labels() && noexcept;
@@ -33,8 +33,8 @@ public:
 protected:
 
   Scaling scaling;
-  int _itemCount;
-  int _featureVectorSize;
+  size_t _itemCount;
+  size_t _featureVectorSize;
   std::vector<std::valarray<double> > _items;
   std::vector<unsigned char> _labels;
 };

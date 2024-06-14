@@ -38,5 +38,5 @@ public:
   KNearestNeighbors(KNearestNeighbors&&) = default;
   KNearestNeighbors& operator=(KNearestNeighbors&&) = default;
 
-  void runTest(MnistDatasetBase&&, int, int, int, std::ostream& = std::cout, OutputMode = OutputMode::pretty) noexcept;
+  void runTest(MnistDatasetBase&&, size_t, size_t, size_t, std::ostream& = std::cout, OutputMode = OutputMode::pretty) noexcept;
 };
