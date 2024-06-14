@@ -5,7 +5,7 @@
 #pragma once
 
 #include "mnist_handler.hpp"
-#include "../LIB_PRINT_BITS/print_bits.hpp"
+#include "../print_bits/print_bits.hpp"
 
 static uint32_t convertBigToLittleEndian(const unsigned char bytes[4])
 {
