@@ -2,7 +2,7 @@
 // (c) Reza Manoochehrian JUN-2024
 // info@mantam.com
 
-#include "../LIB_MNIST_IDX_UBYTE_2/mnist_dataset.hpp"
+#include "../mnist_idx_ubyte/mnist_dataset.hpp"
 #include <iostream>
 
 class KNearestNeighbors
