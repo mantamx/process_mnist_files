@@ -51,14 +51,14 @@ const std::string CALL_SYNTAX_PART_2
 \n\
 position-independent-args name=value, all names required:\n\
 \n\
-  -path_train_images=<value_interpreted_as_string>\n\
-  -path_train_labels=<value_interpreted_as_string>\n\
-  -path_test_images=<value_interpreted_as_string>\n\
-  -path_test_images=<value_interpreted_as_string>\n\
-  -k=<value_interpreted_as_number>                 value defaults to 3, min: 1, cap: count training data\n\
-  -count_train=<value_interpreted_as_number>       value defaults to 10000\n\
-  -count_test=<value_interpreted_as_number>        value defaults to 10\n\
-  -output_mode=<value_interpreted_as_string>       value defaults to \"delimited\", range: \"delimited\", \"pretty\"\n\
+  -path_train_images=<string>  path to MNIST binary file with training image data\n\
+  -path_train_labels=<string>  path to training file with labels\n\
+  -path_test_images=<string>   path to test file with images\n\
+  -path_test_images=<string>   path to test file with labels\n\
+  -k=<integer>                 specific to K Nearest Neighbors, defaults to 3, range: 1...<-count_train>\n\
+  -count_train=<integer>       number of records from training data to consider for calculations, defaults to 10000\n\
+  -count_test=<integer>        number of records from test data to test, defaults to 10\n\
+  -output_mode=<string>        defaults to \"delimited\", range: \"delimited\", \"pretty\"\n\
 \n\
 \n\
 "
@@ -246,7 +246,7 @@ int main(int argument_count, char** arguments)
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-  << "main(): ...test done, knn function call with test data ["
+  << "main(): ...test done, KNearestNeighbors::runTest() ["
   << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
   << " ms]\n\nmain(): out\n";
 
