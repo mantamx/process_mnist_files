@@ -39,12 +39,15 @@ void KNearestNeighbors::runTest
   std::vector<unsigned char> test_labels{ test_dataset.labels() };
   const size_t COUNT_K{ k > 0 && k <= _training_data.size() ? k : 3 };
   const size_t COUNT_K_LESS_1{ COUNT_K - 1 };
+  size_t current_k{ COUNT_K };
+  size_t current_k_less_1{ COUNT_K_LESS_1 };
   const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
   const size_t COUNT_TRAINING_DATA{ count_train_items <= _training_data.size() ? count_train_items : _training_data.size() };
   const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
 
   std::vector<double> temp_distance(COUNT_TRAINING_DATA);
   std::vector<double> vector_k_nearest(COUNT_TRAINING_DATA);
+  auto kn_iterator{ vector_k_nearest.begin() };
 
   //
   // keep track of distance comparisions in a frequncy map
@@ -97,15 +100,25 @@ void KNearestNeighbors::runTest
     // STEP TWO: determine k nearest distances
     // COST: count_test_data x count_training_data x std::set::insert()
 
-    std::sort(vector_k_nearest.begin(), vector_k_nearest.end()); // sort ascending
-    std::unique(vector_k_nearest.begin(), vector_k_nearest.end()); // move duplicates to the end
+    // sort ascending
+    std::sort(vector_k_nearest.begin(), vector_k_nearest.end());
+
+    // move duplicates to the end
+    // check there really are at least k unique nearest
+    kn_iterator = std::unique(vector_k_nearest.begin(), vector_k_nearest.end());
+    if (kn_iterator - vector_k_nearest.begin() < COUNT_K)
+    {
+      current_k = kn_iterator - vector_k_nearest.begin();
+      current_k_less_1 = current_k - 1;
+      std::cout << "KNearestNeighbors::runTest(): TEST_" << (iTestData + 1) << ", using unique k " << (kn_iterator - vector_k_nearest.begin()) << " is less than " << COUNT_K << '\n';
+    }
 
     // STEP THREE: how many training data items per k nearest distance = find most used class = prediction = result
     // COST: count_test_data x count_training_data
 
     for (iTrainingData = 0; iTrainingData < COUNT_TRAINING_DATA; iTrainingData++)
     {
-      for (int k = 0; k < COUNT_K; k++)
+      for (int k = 0; k < current_k; k++)
       {
         if (temp_distance[iTrainingData] == vector_k_nearest[k])
         {
@@ -151,7 +164,7 @@ void KNearestNeighbors::runTest
 
     << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::DISTANCE] [OUTPUT_MODE];
 
-    for (int k = 0; k < COUNT_K_LESS_1; k++)
+    for (int k = 0; k < current_k_less_1; k++)
       output << vector_k_nearest[k] << ' ';
 
     output
@@ -170,6 +183,8 @@ void KNearestNeighbors::runTest
     max_frequency_label = '\0';
     max_frequency_count = 1;
     found = false;
+    current_k = COUNT_K;
+    current_k_less_1 = COUNT_K_LESS_1;
   }
 
   auto end_test = std::chrono::high_resolution_clock::now();
