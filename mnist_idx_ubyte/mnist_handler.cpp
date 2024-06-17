@@ -68,9 +68,7 @@ MnistHandler::MnistHandler(FileType type, std::string path)
 std::vector<unsigned char> MnistHandler::items() const& noexcept
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(std::vector<unsigned char>(_items.begin(), _items.end()));
-  // return std::vector<unsigned char>(_items.begin(), _items.end());
+  return std::vector<unsigned char>(_items.begin(), _items.end());
 }
 
 std::vector<unsigned char> MnistHandler::items() && noexcept
@@ -81,9 +79,7 @@ std::vector<unsigned char> MnistHandler::items() && noexcept
 std::array<uint32_t, 4> MnistHandler::headerFields() const noexcept
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(std::array<uint32_t, 4>{   _header[0], _header[1], _header[2], _header[3]   });
-  // return std::array<uint32_t, 4>{   _header[0], _header[1], _header[2], _header[3]   };
+  return std::array<uint32_t, 4>{   _header[0], _header[1], _header[2], _header[3]   };
 }
 
 uint32_t MnistHandler::headerField(HeaderField field) const noexcept
@@ -99,9 +95,7 @@ unsigned char MnistHandler::readByte(int index) const
 std::vector<unsigned char> MnistHandler::readItem(int itemIndex) const
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(std::vector<unsigned char>(_items.begin() + itemIndex * _itemSize, _items.begin() + (itemIndex + 1) * _itemSize));
-  // return std::vector<unsigned char>(_items.begin() + itemIndex * _itemSize, _items.begin() + (itemIndex + 1) * _itemSize);
+  return std::vector<unsigned char>(_items.begin() + itemIndex * _itemSize, _items.begin() + (itemIndex + 1) * _itemSize);
 }
 
 MnistHandler::FileType MnistHandler::fileType() const noexcept { return _fileType; }

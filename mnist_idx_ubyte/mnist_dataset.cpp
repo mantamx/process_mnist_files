@@ -45,8 +45,7 @@ unsigned char MnistDatasetBase::label(int index) const { return _labels[index]; 
 std::vector<unsigned char> MnistDatasetBase::labels() const& noexcept
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(std::vector<unsigned char>(_labels.begin(), _labels.end()));
+  return std::vector<unsigned char>(_labels.begin(), _labels.end());
 }
 
 std::vector<unsigned char> MnistDatasetBase::labels() && noexcept
@@ -57,8 +56,7 @@ std::vector<unsigned char> MnistDatasetBase::labels() && noexcept
 std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() const& noexcept
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(   std::vector<std::valarray<double>>(_items.begin(), _items.end())   );
+  return std::vector<std::valarray<double>>(_items.begin(), _items.end());
 }
 
 std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() && noexcept
@@ -69,8 +67,7 @@ std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() && n
 std::valarray<double> MnistDatasetBase::scaledFeatureVector(int itemIndex) const
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  // yet, i choose to keep std::move()
-  return std::move(std::valarray<double>(_items[itemIndex]));
+  return std::valarray<double>(_items[itemIndex]);
 }
 
 double MnistDatasetBase::scaledFeature(int itemIndex, int featureIndex) const
