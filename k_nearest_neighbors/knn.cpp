@@ -8,8 +8,8 @@
 #include <algorithm>
 
 KNearestNeighbors::KNearestNeighbors(MnistDatasetBase&& training_dataset) noexcept
-  : _training_data{ training_dataset.scaledFeatureVectors() }
-  , _training_labels{ training_dataset.labels() }
+  : _training_data{ std::move(training_dataset).scaledFeatureVectors() }
+  , _training_labels{ std::move(training_dataset).labels() }
 { }
 
 void KNearestNeighbors::runTest
@@ -35,8 +35,8 @@ void KNearestNeighbors::runTest
     output << "KNearestNeighbors::runTest(): setting k argument to 1\n";
   }
 
-  std::vector<std::valarray<double>> test_data{ std::move(test_dataset.scaledFeatureVectors()) };
-  std::vector<unsigned char> test_labels{ test_dataset.labels() };
+  std::vector<std::valarray<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
+  std::vector<unsigned char> test_labels{ std::move(test_dataset).labels() };
   const size_t COUNT_K{ k > 0 && k <= _training_data.size() ? k : 3 };
   const size_t COUNT_K_LESS_1{ COUNT_K - 1 };
   size_t current_k{ COUNT_K };

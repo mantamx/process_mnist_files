@@ -12,6 +12,7 @@ public:
   enum class Scaling { none, normalization, standardization, unit_length };
 
   MnistDatasetBase(Scaling, MnistHandler&&, MnistHandler&&) noexcept;
+  MnistDatasetBase(Scaling, std::vector<unsigned char>&&, std::vector<unsigned char>&&, size_t) noexcept;
   MnistDatasetBase() = delete;
   virtual ~MnistDatasetBase() = default;
   MnistDatasetBase(const MnistDatasetBase&) = delete;
@@ -47,6 +48,7 @@ class MnistDatasetNormalized : public MnistDatasetBase
 public:
 
   MnistDatasetNormalized(MnistHandler&&, MnistHandler&&) noexcept;
+  MnistDatasetNormalized(std::vector<unsigned char>&&, std::vector<unsigned char>&&, size_t) noexcept;
   MnistDatasetNormalized() = delete;
   virtual ~MnistDatasetNormalized() = default;
   MnistDatasetNormalized(const MnistDatasetNormalized&) = delete;
@@ -63,6 +65,7 @@ class MnistDatasetStandardized : public MnistDatasetBase
 public:
 
   MnistDatasetStandardized(MnistHandler&&, MnistHandler&&) noexcept;
+  MnistDatasetStandardized(std::vector<unsigned char>&&, std::vector<unsigned char>&&, size_t) noexcept;
   MnistDatasetStandardized() = delete;
   virtual ~MnistDatasetStandardized() = default;
   MnistDatasetStandardized(const MnistDatasetStandardized&) = delete;

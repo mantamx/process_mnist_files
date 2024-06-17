@@ -206,17 +206,42 @@ int main(int argument_count, char** arguments)
   //
   //
   //
+  // if handler data is needed for more than one such call (e.g., later for k-means clustering)
+  // then from these options, (a) is disabled here, (b) is close to (c), (c) is better:
+  // (a) use copies of handler objects. but currently copy constructor / assignments have been disabled.
+  // (b) instantiate multipile handler objects.
+  // (c) use the dataset constructor with std::vector<unsigned char>
+  //
+  // sample code for (c)
+  //
+  //  KNearestNeighbors my_knn
+  //  (
+  //    MnistDatasetNormalized
+  //    (
+  //      mnist_handlers[TRAIN_LABELS].items() // copy of data
+  //      , mnist_handlers[TRAIN_IMAGES].items() // copy of data
+  //      , mnist_handlers[TRAIN_IMAGES].headerField(MnistHandler::HeaderField::row_count) * mnist_handlers[TRAIN_IMAGES].headerField(MnistHandler::HeaderField::column_count)
+  //    )
+  //  );
+  //
+  //
+  //
 
   std::cout << "main(): instantiating knn object with normalized training data...\n";
 
   start = std::chrono::high_resolution_clock::now();
 
+  //
+  // std::move(): after this call, vector of image data is empty,
+  // because MnistDataset* constructors move data out of the objects
+  //
+
   KNearestNeighbors knn
   (
     MnistDatasetNormalized
     (
-      std::move(   mnist_handlers[TRAIN_IMAGES]   )
-      , std::move(   mnist_handlers[TRAIN_LABELS]   )
+      std::move(   mnist_handlers[TRAIN_LABELS]   )
+      , std::move(   mnist_handlers[TRAIN_IMAGES]   )
     )
   );
 
@@ -233,8 +258,8 @@ int main(int argument_count, char** arguments)
   (
     MnistDatasetNormalized
     (
-      std::move(mnist_handlers[TEST_IMAGES])
-      , std::move(mnist_handlers[TEST_LABELS])
+      std::move(   mnist_handlers[TEST_LABELS]   )
+      , std::move(   mnist_handlers[TEST_IMAGES]   )
     )
     , ARG_K
     , ARG_COUNT_TRAIN

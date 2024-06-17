@@ -6,19 +6,24 @@
 
 #include "mnist_dataset.hpp"
 
-MnistDatasetBase::MnistDatasetBase
-(
-  MnistDatasetBase::Scaling scaling
-  , MnistHandler&& mnistHandlerImages
-  , MnistHandler&& mnistHandlerLabels
-) noexcept
+MnistDatasetBase::MnistDatasetBase(MnistDatasetBase::Scaling scaling , MnistHandler&& mnistHandlerLabels , MnistHandler&& mnistHandlerImages) noexcept
+  : MnistDatasetBase
+    (
+      scaling
+      , std::move(mnistHandlerLabels).items()
+      , std::move(mnistHandlerImages).items()
+      , static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::row_count))* static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::column_count))
+    )
+{ }
+
+MnistDatasetBase::MnistDatasetBase (MnistDatasetBase::Scaling scaling , std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
   : scaling{ scaling }
-  , _itemCount{ static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::item_count)) }
-  , _featureVectorSize{ static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::row_count)) * static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::column_count)) }
+  , _itemCount{ labels.size() }
+  , _featureVectorSize{ featureVectorSize }
   , _items{ _itemCount }
-  , _labels{ std::move(mnistHandlerLabels).items() }
+  , _labels{ std::move(labels) }
 {
-  std::vector<unsigned char> vi{ std::move(mnistHandlerImages).items() }; // ...items() moves
+  std::vector<unsigned char> vi{ std::move(data) };
   std::valarray<double> va;
   size_t count{ vi.size() };
 
@@ -42,7 +47,6 @@ std::vector<unsigned char> MnistDatasetBase::labels() const& noexcept
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
   // yet, i choose to keep std::move()
   return std::move(std::vector<unsigned char>(_labels.begin(), _labels.end()));
-  // return std::vector<unsigned char>(_labels.begin(), _labels.end());
 }
 
 std::vector<unsigned char> MnistDatasetBase::labels() && noexcept
@@ -55,7 +59,6 @@ std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() cons
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
   // yet, i choose to keep std::move()
   return std::move(   std::vector<std::valarray<double>>(_items.begin(), _items.end())   );
-  // return std::vector<std::valarray<double>>(_items.begin(), _items.end());
 }
 
 std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() && noexcept
@@ -68,7 +71,6 @@ std::valarray<double> MnistDatasetBase::scaledFeatureVector(int itemIndex) const
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
   // yet, i choose to keep std::move()
   return std::move(std::valarray<double>(_items[itemIndex]));
-  // return std::valarray<double>(_items[itemIndex]);
 }
 
 double MnistDatasetBase::scaledFeature(int itemIndex, int featureIndex) const
@@ -78,8 +80,17 @@ double MnistDatasetBase::scaledFeature(int itemIndex, int featureIndex) const
 
 /////////////////////////////////////////////////////
 
-MnistDatasetNormalized::MnistDatasetNormalized(MnistHandler&& mhimages, MnistHandler&& mhlabels) noexcept
-  : MnistDatasetBase(MnistDatasetBase::Scaling::normalization, std::forward<MnistHandler>(mhimages), std::forward<MnistHandler>(mhlabels))
+MnistDatasetNormalized::MnistDatasetNormalized(MnistHandler&& mnistHandlerLabels, MnistHandler&& mnistHandlerImages) noexcept
+  : MnistDatasetNormalized
+    (
+      std::move(mnistHandlerLabels).items()
+      , std::move(mnistHandlerImages).items()
+      , static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::row_count))* static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::column_count))
+    )
+{ }
+
+MnistDatasetNormalized::MnistDatasetNormalized (std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
+  : MnistDatasetBase(MnistDatasetBase::Scaling::normalization, std::move(labels), std::move(data), featureVectorSize)
   , _featureVectorMin{ }
   , _featureVectorMax{ }
 {
@@ -114,8 +125,17 @@ MnistDatasetNormalized::MnistDatasetNormalized(MnistHandler&& mhimages, MnistHan
 
 ///////////////////////////////////////////////////
 
-MnistDatasetStandardized::MnistDatasetStandardized(MnistHandler&& mhimages, MnistHandler&& mhlabels) noexcept
-  : MnistDatasetBase(MnistDatasetBase::Scaling::standardization, std::forward<MnistHandler>(mhimages), std::forward<MnistHandler>(mhlabels))
+MnistDatasetStandardized::MnistDatasetStandardized(MnistHandler&& mnistHandlerLabels, MnistHandler&& mnistHandlerImages) noexcept
+  : MnistDatasetStandardized
+  (
+    std::move(mnistHandlerLabels).items()
+    , std::move(mnistHandlerImages).items()
+    , static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::row_count))* static_cast<size_t>(mnistHandlerImages.headerField(MnistHandler::HeaderField::column_count))
+  )
+{ }
+
+MnistDatasetStandardized::MnistDatasetStandardized (std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
+  : MnistDatasetBase(MnistDatasetBase::Scaling::standardization, std::move(labels), std::move(data), featureVectorSize)
   , _featureVectorMean( 0., _featureVectorSize)
   , _featureVectorStdev( 0., _featureVectorSize)
 {
