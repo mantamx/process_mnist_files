@@ -2,8 +2,6 @@
 // (c) Reza Manoochehrian JUN-2024
 // info@mantam.com
 
-#pragma once
-
 #include "mnist_dataset.hpp"
 
 MnistDatasetBase::MnistDatasetBase(MnistDatasetBase::Scaling scaling , MnistHandler&& mnistHandlerLabels , MnistHandler&& mnistHandlerImages) noexcept

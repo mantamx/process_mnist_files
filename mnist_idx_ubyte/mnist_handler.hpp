@@ -2,6 +2,8 @@
 // (c) Reza Manoochehrian JUN-2024
 // reza@mantam.com
 
+#pragma once
+
 #include <vector>
 #include <array>
 #include <string>

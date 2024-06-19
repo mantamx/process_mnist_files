@@ -2,6 +2,8 @@
 // (c) Reza Manoochehrian JUN-2024
 // info@mantam.com
 
+#pragma once
+
 #include "../mnist_idx_ubyte/mnist_dataset.hpp"
 #include <iostream>
 

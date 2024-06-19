@@ -2,8 +2,6 @@
 // (c) Reza Manoochehrian JUN-2024
 // reza@mantam.com
 
-#pragma once
-
 #include "mnist_handler.hpp"
 #include "../print_bits/print_bits.hpp"
 
