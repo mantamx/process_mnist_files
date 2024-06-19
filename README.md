@@ -16,11 +16,11 @@ For now, K Nearest Neighbors, the easiest approach, is implemented as `class KNe
 Implementing any of the approaches requires reading the MNIST files, `class MnistHandler`, and handling the data, `class MnistDataset`. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will have to follow along the way.
 
 ## K Nearest Neighbors
-There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the backing data, over and over, with nothing to cache, etc.
+There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the reference data, over and over, with nothing to cache, etc.
 
 Therefore argument `-count_train` (see EXAMPLE.exe) has runtime impact.
 
-Also the distribution of points (images, each a vector in 784-dimensional space) plays a significant role in the outcome of the test. Due to the way I chose to handle / model the data, I don't have the option to introduce optional parameter to shuffle the training (or what I called backing) data. Can change this, but it's not necessary as I now understand the algorithm and know the effect of the distribution on the outcome. A way to compensate for this effect / dependency is, in my view, to increase <-k>.
+Also the distribution of points (images, each a vector in 784-dimensional space) plays a significant role in the outcome of the test. Due to the way I chose to process the data and model the dataset, I don't have the option to introduce an optional parameter to shuffle the training (or what I called reference) data. Can change this, but it's not necessary as I now understand the algorithm and know the effect of the distribution on the outcome. A way to compensate for this effect / dependency is, in my view, to increase `-k`.
 
 # EXAMPLE.exe
 This is my playground, and it helped me a lot to feel the intrinsics of KNN by comparing results with changing arguments.
@@ -52,7 +52,7 @@ Parameters are in the form name=value. The order of the arguments in the call to
 |-count_train|5000|
 |-count_test|50|
 |-output_mode|delimited|
-## Output of the run
+## Output of the run, Windows release build
 ```
 main(): in
 main(): reading 4 files: training images, training labels, test images, test labels...
