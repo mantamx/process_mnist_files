@@ -106,7 +106,7 @@ void KNearestNeighbors::runTest
     // move duplicates to the end
     // check there really are at least k unique nearest
     kn_iterator = std::unique(vector_k_nearest.begin(), vector_k_nearest.end());
-    if (kn_iterator - vector_k_nearest.begin() < COUNT_K)
+    if (kn_iterator - vector_k_nearest.begin() < static_cast<double>(COUNT_K))
     {
       current_k = kn_iterator - vector_k_nearest.begin();
       current_k_less_1 = current_k - 1;
