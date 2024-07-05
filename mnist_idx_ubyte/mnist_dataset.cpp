@@ -134,7 +134,7 @@ MnistDatasetStandardized::MnistDatasetStandardized (std::vector<unsigned char>&&
   , _featureVectorMean( 0., _featureVectorSize)
   , _featureVectorStdev( 0., _featureVectorSize)
 {
-  for (size_t i{ 1 }; i < _itemCount; i++)
+  for (size_t i{ 0 }; i < _itemCount; i++)
     _featureVectorMean += _items[i];
 
   _featureVectorMean /= static_cast<int>(_itemCount); // done: mean of each feature

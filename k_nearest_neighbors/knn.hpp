@@ -15,7 +15,7 @@ class KNearestNeighbors
   enum { STATUS, EXPECTED, RESULT, COUNT, DISTANCE, DURATION };
   static constexpr const char* const P_STR_HEADER{ "Test|Status|Expected|Result|Count|Distance|Duration\n" };
   static constexpr const char* const P_STR_ARRAY_2
-    [7] // TOKEN
+    [6] // TOKEN
     [2] // MODE: pretty, delimited
     =
   {
@@ -24,12 +24,12 @@ class KNearestNeighbors
     , { ", result = ", "|" }
     , { ", count = ", "|" }
     , { ", distance = { ", "|" }
-    , { ", time = ", "|"}
+    , { ", duration = ", "|"}
   };
 
 public:
 
-  enum class DistanceType { euclidean /*, manhattan */ };
+//  enum class DistanceType { euclidean /*, manhattan */ };
   enum class OutputMode { pretty, delimited };
 
   KNearestNeighbors() = delete;
