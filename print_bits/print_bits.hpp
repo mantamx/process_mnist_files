@@ -6,7 +6,6 @@
 
 #include <fstream>
 #include <vector>
-#include <string>
 
 enum class PrintMode { bits, bytes_raw, bytes_pretty_binary };
 
