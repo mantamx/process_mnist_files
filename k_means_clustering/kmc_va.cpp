@@ -2,7 +2,10 @@
 // (c) Reza Manoochehrian JUL-2024
 // www.mantam.com
 
-#include "kmc.hpp"
+#include "kmc_va.hpp"
+
+#ifdef _MNIST_DATASET_VALARRAY
+
 #include <map>
 #include <chrono>
 #include <algorithm>
@@ -10,32 +13,23 @@
 #include <utility>
 #include <tuple>
 
-std::pair<size_t, double> KMeansClustering::determine_cluster
+static std::pair<size_t, double> determine_cluster
 (
-  std::vector<double>& v_data
+  std::vector<std::valarray<double>>& vva_cluster
+  , std::valarray<double>& va_data
+  , size_t count_clusters
 )
 {
-  double distance_square{ 0. };
-
-  for (size_t f{ 0 }; f < _count_features; f++)
-    if (_features_mask[f] || v_data[f])
-      distance_square += pow((_cluster_centers[0][f] - v_data[f]), 2);
-
+  double distance_square{ std::pow((vva_cluster[0] - va_data), 2).sum() };
   double distance{ std::sqrt(distance_square) };
   double min_distance_square{ distance_square };
   double min_distance{ distance };
   size_t current_cluster{ 0 };
 
-  for (size_t c{ 1 }, f; c < _count_clusters; c++)
+  for (size_t c{ 1 }; c < count_clusters; c++)
   {
-    distance_square = 0.;
-    if (_features_mask[0] || v_data[0])
-      distance_square = pow((_cluster_centers[c][0] - v_data[0]), 2);
-    for (f = 1; f < _count_features; f++)
-      if (_features_mask[f] || v_data[f])
-        distance_square += pow((_cluster_centers[c][f] - v_data[f]), 2);
-
-    distance = sqrt(distance_square);
+    distance_square = std::pow((vva_cluster[c] - va_data), 2).sum();
+    distance = std::sqrt(distance_square);
 
     if (min_distance < distance)
     {
@@ -54,9 +48,9 @@ std::pair<size_t, double> KMeansClustering::determine_cluster
   return std::make_pair(current_cluster, min_distance_square);
 }
 
-KMeansClustering::KMeansClustering
+KMeansClustering_VA::KMeansClustering_VA
 (
-  MnistDatasetBase&& training_dataset
+  MnistDatasetBase_VA&& training_dataset
   , size_t count_training_items
   , double exit_condition_percentage_change
   , int exit_condition_unchanged_total_distance
@@ -66,45 +60,18 @@ KMeansClustering::KMeansClustering
 ) noexcept
   : _training_data{ std::move(training_dataset).scaledFeatureVectors() }
   , _training_labels{ std::move(training_dataset).labels() }
-  , _cluster_centers(count_clusters)
   , _count_clusters{ count_clusters }
-  , _count_training_data{ count_training_items <= _training_data.size() ? count_training_items : _training_data.size() }
-  , _count_features{ _training_data.size() ? _training_data[0].size() : 0 }
   , _training_exit_on_percentage_change{ exit_condition_percentage_change }
   , _training_exit_on_unchanged_error{ exit_condition_unchanged_total_distance }
   , _training_exit_on_iterations{ exit_condition_max_iterations }
+  , _cluster_centers( count_clusters )
+  , _count_training_data{ count_training_items <= _training_data.size() ? count_training_items : _training_data.size() }
   , _point_to_cluster( _count_training_data )
   , _cluster_class(count_clusters)
-  , _features_mask( _count_features, 1 )
 {
-  output << "KMeansClustering::KMeansClustering(): in\n#|CLST_ASSIGN|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
+  output << "KMeansClustering_VA::KMeansClustering_VA(): in\n#|CLST_ASSIGN|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
 
   auto in = std::chrono::high_resolution_clock::now();
-
-  //
-  // feature that is 0 accross all points has potential
-  // to optimize calculation in determine_cluster()
-  //
-
-  unsigned short optimization{ 0 };
-  for (size_t f{ 0 }; f < _count_features; f++)
-  {
-    _features_mask[f] = 0;
-    for (size_t p{ 0 }; p < _count_training_data; p++)
-    {
-      if (_training_data[p][f])
-      {
-        _features_mask[f] = 1;
-        break;
-      }
-    }
-    optimization += _features_mask[f];
-  }
-  std::cout << "KMeansClustering::KMeansClustering(): training optimization:" << (_count_features - optimization) << " of " << _count_features << " times " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new-center calculations per line of output below\n";
-
-  //
-  //
-  //
 
   std::vector<size_t> cluster_to_point_current_sizes(_count_clusters);
   std::vector<std::vector<size_t>> cluster_to_point(_count_clusters);
@@ -152,7 +119,8 @@ KMeansClustering::KMeansClustering
     {
       min_distance = std::numeric_limits<double>::max();
 
-      currentCluster_and_minDistanceSquare = determine_cluster(_training_data[p]);
+      currentCluster_and_minDistanceSquare = determine_cluster(_cluster_centers, _training_data[p], _count_clusters);
+
 
       if (_point_to_cluster[p] != currentCluster_and_minDistanceSquare.first)
         count_current_cluster_changes++;
@@ -184,7 +152,7 @@ KMeansClustering::KMeansClustering
 
       if ((min_total_distance - total_distance) / min_total_distance * 100. < _training_exit_on_percentage_change)
       {
-        output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_PERCENTAGE_CHANGE\n";
+        output << "KMeansClustering_VA::KMeansClustering_VA(): i_" << iteration << ": EXIT_CONDITION_PERCENTAGE_CHANGE\n";
         break;
       }
 
@@ -205,7 +173,7 @@ KMeansClustering::KMeansClustering
 
       if (++consecutive_unchanged == _training_exit_on_unchanged_error)
       {
-        output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_CONSECUTIVE_UNCHANGED\n";
+        output << "KMeansClustering_VA::KMeansClustering_VA(): i_" << iteration << ": EXIT_CONDITION_CONSECUTIVE_UNCHANGED\n";
         break;
       }
     }
@@ -220,7 +188,7 @@ KMeansClustering::KMeansClustering
         << '|' << count_current_cluster_changes
         << '\n';
 
-      output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_MIN_TOTAL_DISTANCE_INCREASED\n";
+      output << "KMeansClustering_VA::KMeansClustering_VA(): i_" << iteration << ": EXIT_CONDITION_MIN_TOTAL_DISTANCE_INCREASED\n";
       break;
     }
 
@@ -230,21 +198,13 @@ KMeansClustering::KMeansClustering
     // new center of cluster: each element of feature vector is the mean of current cluster points
     //
 
-    double dcount;
     for (size_t xcount, c{ 0 }; c < _count_clusters; c++)
     {
-      for (size_t f{ 0 }; f < _count_features; f++)
-        _cluster_centers[c][f] = 0.;
-
+      _cluster_centers[c] = 0.;
       xcount = cluster_to_point_current_sizes[c];
-
       for (size_t x{ 0 }; x < xcount; x++)
-        for (size_t f{ 0 }; f < _count_features; f++)
-          _cluster_centers[c][f] += _training_data[ cluster_to_point[c][x] ][f];
-
-      dcount = static_cast<double>(xcount);
-      for (size_t f{ 0 }; f < _count_features; f++)
-        _cluster_centers[c][f] /= dcount;
+        _cluster_centers[c] += _training_data[ cluster_to_point[c][x] ];
+      _cluster_centers[c] /= static_cast<double>(xcount);
     }
 
     //
@@ -258,7 +218,7 @@ KMeansClustering::KMeansClustering
 
   if (iteration == _training_exit_on_iterations)
   {
-    output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_MAX_ITERATIONS\n";
+    output << "KMeansClustering_VA::KMeansClustering_VA(): i_" << iteration << ": EXIT_CONDITION_MAX_ITERATIONS\n";
   }
 
   //
@@ -269,10 +229,10 @@ KMeansClustering::KMeansClustering
 
   auto out = std::chrono::high_resolution_clock::now();
 
-  output << "KMeansClustering::KMeansClustering(): out " << std::chrono::duration_cast<std::chrono::milliseconds>(out - in).count() << " ms\n";
+  output << "KMeansClustering_VA::KMeansClustering_VA(): out " << std::chrono::duration_cast<std::chrono::milliseconds>(out - in).count() << " ms\n";
 }
 
-void KMeansClustering::set_clusters()
+void KMeansClustering_VA::set_clusters()
 {
   std::vector<std::map<unsigned char, size_t>> v_cluster_frequency_map(_count_clusters);
   std::map<unsigned char, size_t>::iterator map_iterator;
@@ -302,17 +262,17 @@ void KMeansClustering::set_clusters()
   }
 }
 
-void KMeansClustering::runTest
+void KMeansClustering_VA::runTest
 (
-  MnistDatasetBase&& test_dataset
+  MnistDatasetBase_VA&& test_dataset
   , size_t count_items_to_test
   , std::ostream& output
   , OutputMode output_mode
 ) noexcept
 {
-  output << "KMeansClustering::runTest(): in, clusters:" << _count_clusters << '\n';
+  output << "KMeansClustering_VA::runTest(): in, clusters:" << _count_clusters << '\n';
 
-  std::vector<std::vector<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
+  std::vector<std::valarray<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
   std::vector<unsigned char> test_labels{ std::move(test_dataset).labels() };
   const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
   const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
@@ -326,10 +286,10 @@ void KMeansClustering::runTest
   //
   //
 
-  output << "KMeansClustering::runTest(): TEST_START:\n\ttest_data=" << COUNT_TEST_DATA << '\n';
+  output << "KMeansClustering_VA::runTest(): TEST_START:\n\ttest_data=" << COUNT_TEST_DATA << '\n';
 
   if (OUTPUT_MODE)
-    output << KMeansClustering::P_STR_HEADER;
+    output << KMeansClustering_VA::P_STR_HEADER;
 
   double distance{ 0. };
   std::pair<size_t, double> currentCluster_and_minDistanceSquare;
@@ -338,22 +298,22 @@ void KMeansClustering::runTest
 
   for (size_t iTestData{ 0 }; iTestData < COUNT_TEST_DATA; iTestData++)
   {
-    currentCluster_and_minDistanceSquare = determine_cluster(test_data[iTestData]);
+    currentCluster_and_minDistanceSquare = determine_cluster(_cluster_centers, test_data[iTestData], _count_clusters);
 
     output
 
       << "TEST_" << (iTestData + 1)
 
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::STATUS][OUTPUT_MODE]
+      << KMeansClustering_VA::P_STR_ARRAY_2[KMeansClustering_VA::STATUS][OUTPUT_MODE]
       << P_STR_OK_NOK[ test_labels[iTestData] == _cluster_class[currentCluster_and_minDistanceSquare.first] ? (count_success++, 0) : (count_error++, 1) ]
 
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::EXPECTED][OUTPUT_MODE]
+      << KMeansClustering_VA::P_STR_ARRAY_2[KMeansClustering_VA::EXPECTED][OUTPUT_MODE]
       << static_cast<int>(test_labels[iTestData])
 
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::RESULT][OUTPUT_MODE]
+      << KMeansClustering_VA::P_STR_ARRAY_2[KMeansClustering_VA::RESULT][OUTPUT_MODE]
       << static_cast<int>(_cluster_class[ currentCluster_and_minDistanceSquare.first ])
 
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::DISTANCE][OUTPUT_MODE]
+      << KMeansClustering_VA::P_STR_ARRAY_2[KMeansClustering_VA::DISTANCE][OUTPUT_MODE]
       << std::sqrt(currentCluster_and_minDistanceSquare.second)
       << '\n';
 
@@ -367,10 +327,11 @@ void KMeansClustering::runTest
   auto end_test = std::chrono::high_resolution_clock::now();
 
   output
-    << "KMeansClustering::runTest(): TEST_DONE:\n\ttest_data=" << COUNT_TEST_DATA
+    << "KMeansClustering_VA::runTest(): TEST_DONE:\n\ttest_data=" << COUNT_TEST_DATA
     << "\n\terror=" << count_error
     << "\n\tsuccess=" << count_success
-    << "\n\ttest=" << std::chrono::duration_cast<std::chrono::milliseconds>(end_test - start_test).count();
-
-  output << "\nKMeansClustering::runTest(): out\n";
+    << "\n\ttest=" << std::chrono::duration_cast<std::chrono::milliseconds>(end_test - start_test).count()
+    << "\nKMeansClustering_VA::runTest(): out\n";
 }
+
+#endif

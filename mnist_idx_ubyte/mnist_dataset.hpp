@@ -1,11 +1,11 @@
 // mnist_dataset.hpp
 // (c) Reza Manoochehrian JUN-2024
-// reza@mantam.com
+// www.mantam.com
 
 #pragma once
 
 #include "mnist_handler.hpp"
-#include <valarray>
+#include <vector>
 
 class MnistDatasetBase
 {
@@ -28,17 +28,17 @@ public:
   std::vector<unsigned char> labels() const& noexcept;
   std::vector<unsigned char> labels() && noexcept;
 
-  std::vector<std::valarray<double>> scaledFeatureVectors() const& noexcept;
-  std::vector<std::valarray<double>> scaledFeatureVectors() && noexcept;
-  std::valarray<double> scaledFeatureVector(int) const;
-  double scaledFeature(int, int) const;
+  std::vector<std::vector<double>> scaledFeatureVectors() const& noexcept;
+  std::vector<std::vector<double>> scaledFeatureVectors() && noexcept;
+  std::vector<double> scaledFeatureVector(size_t) const;
+  double scaledFeature(size_t, size_t) const;
 
 protected:
 
   Scaling scaling;
   size_t _itemCount;
   size_t _featureVectorSize;
-  std::vector<std::valarray<double> > _items;
+  std::vector<std::vector<double> > _items;
   std::vector<unsigned char> _labels;
 };
 
@@ -61,8 +61,8 @@ public:
 
 class MnistDatasetStandardized : public MnistDatasetBase
 {
-  std::valarray<double> _featureVectorMean;
-  std::valarray<double> _featureVectorStdev;
+  std::vector<double> _featureVectorMean;
+  std::vector<double> _featureVectorStdev;
 
 public:
 

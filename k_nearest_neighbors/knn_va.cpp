@@ -2,20 +2,22 @@
 // (c) Reza Manoochehrian JUN-2024
 // www.mantam.com
 
-#include "knn.hpp"
+#include "knn_va.hpp"
+
+#ifdef _MNIST_DATASET_VALARRAY
+
 #include <map>
 #include <chrono>
 #include <algorithm>
 
-KNearestNeighbors::KNearestNeighbors(MnistDatasetBase&& training_dataset) noexcept
+KNearestNeighbors_VA::KNearestNeighbors_VA(MnistDatasetBase_VA&& training_dataset) noexcept
   : _training_data{ std::move(training_dataset).scaledFeatureVectors() }
   , _training_labels{ std::move(training_dataset).labels() }
-  , _count_features{ training_dataset.featureVectorSize() }
 { }
 
-void KNearestNeighbors::runTest
+void KNearestNeighbors_VA::runTest
 (
-  MnistDatasetBase&& test_dataset
+  MnistDatasetBase_VA&& test_dataset
   , size_t k
   , size_t count_train_items
   , size_t count_items_to_test
@@ -29,14 +31,14 @@ void KNearestNeighbors::runTest
   // for keeping track of k-nearest, std::vector<double> performs better (tested on Windows) than std::set<double>
   //
 
-  output << "KNearestNeighbors::runTest(): in\n";
+  output << "KNearestNeighbors_VA::runTest(): in\n";
 
   if (k < 1)
   {
-    output << "KNearestNeighbors::runTest(): setting k argument to 1\n";
+    output << "KNearestNeighbors_VA::runTest(): setting k argument to 1\n";
   }
 
-  std::vector<std::vector<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
+  std::vector<std::valarray<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
   std::vector<unsigned char> test_labels{ std::move(test_dataset).labels() };
   const size_t COUNT_K{ k > 0 && k <= _training_data.size() ? k : 3 };
   const size_t COUNT_K_LESS_1{ COUNT_K - 1 };
@@ -77,12 +79,12 @@ void KNearestNeighbors::runTest
   //
 
   output
-  << "KNearestNeighbors::runTest(): TEST_START:\n\tk=" << COUNT_K
+  << "KNearestNeighbors_VA::runTest(): TEST_START:\n\tk=" << COUNT_K
   << "\n\ttraining_data=" << COUNT_TRAINING_DATA
   << "\n\ttest_data=" << COUNT_TEST_DATA << '\n';
 
   if (OUTPUT_MODE)
-    output << KNearestNeighbors::P_STR_HEADER;
+    output << KNearestNeighbors_VA::P_STR_HEADER;
 
   auto start_test = std::chrono::high_resolution_clock::now();
 
@@ -95,11 +97,7 @@ void KNearestNeighbors::runTest
 
     for (iTrainingData = 0; iTrainingData < COUNT_TRAINING_DATA; iTrainingData++)
     {
-      temp_distance[iTrainingData] = pow((test_data[iTestData][0] - _training_data[iTrainingData][0]), 2);
-      for (size_t f{ 1 }; f < _count_features; f++)
-        temp_distance[iTrainingData] += pow((test_data[iTestData][f] - _training_data[iTrainingData][f]), 2);
-
-      vector_k_nearest[iTrainingData] = temp_distance[iTrainingData] = sqrt(temp_distance[iTrainingData]);
+      vector_k_nearest[iTrainingData] = temp_distance[iTrainingData] = std::sqrt(std::pow((test_data[iTestData] - _training_data[iTrainingData]), 2).sum());
     }
 
     // STEP TWO: determine k nearest distances
@@ -115,7 +113,7 @@ void KNearestNeighbors::runTest
     {
       current_k = kn_iterator - vector_k_nearest.begin();
       current_k_less_1 = current_k - 1;
-      std::cout << "KNearestNeighbors::runTest(): TEST_" << (iTestData + 1) << ", using unique k " << (kn_iterator - vector_k_nearest.begin()) << " is less than " << COUNT_K << '\n';
+      std::cout << "KNearestNeighbors_VA::runTest(): TEST_" << (iTestData + 1) << ", using unique k " << (kn_iterator - vector_k_nearest.begin()) << " is less than " << COUNT_K << '\n';
     }
 
     // STEP THREE: how many training data items per k nearest distance = find most used class = prediction = result
@@ -155,19 +153,19 @@ void KNearestNeighbors::runTest
 
     << "TEST_" << (iTestData + 1)
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::STATUS] [OUTPUT_MODE]
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::STATUS] [OUTPUT_MODE]
     << P_STR_OK_NOK [ test_labels[iTestData] == max_frequency_label ? (count_success++, 0) : (count_error++, 1) ]
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::EXPECTED] [OUTPUT_MODE]
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::EXPECTED] [OUTPUT_MODE]
     << static_cast<int>(test_labels[iTestData])
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::RESULT] [OUTPUT_MODE]
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::RESULT] [OUTPUT_MODE]
     << static_cast<int>(max_frequency_label)
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::COUNT] [OUTPUT_MODE]
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::COUNT] [OUTPUT_MODE]
     << max_frequency_count
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::DISTANCE] [OUTPUT_MODE];
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::DISTANCE] [OUTPUT_MODE];
 
     for (int k = 0; k < current_k_less_1; k++)
       output << vector_k_nearest[k] << ' ';
@@ -176,7 +174,7 @@ void KNearestNeighbors::runTest
 
     << vector_k_nearest[k]
 
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::DURATION] [OUTPUT_MODE]
+    << KNearestNeighbors_VA::P_STR_ARRAY_2 [KNearestNeighbors_VA::DURATION] [OUTPUT_MODE]
     << std::chrono::duration_cast<std::chrono::milliseconds>(end_item_test - start_item_test).count()
     << " ms\n";
 
@@ -195,7 +193,7 @@ void KNearestNeighbors::runTest
   auto end_test = std::chrono::high_resolution_clock::now();
 
   output
-  << "KNearestNeighbors::runTest(): TEST_DONE:\n\tk=" << COUNT_K
+  << "KNearestNeighbors_VA::runTest(): TEST_DONE:\n\tk=" << COUNT_K
   << "\n\ttraining_data=" << COUNT_TRAINING_DATA
   << "\n\ttest_data=" << COUNT_TEST_DATA
   << "\n\terror=" << count_error
@@ -207,5 +205,7 @@ void KNearestNeighbors::runTest
 
   output
   << "\n\tpost_test=" << std::chrono::duration_cast<std::chrono::milliseconds>(end - end_test).count()
-  << "\nKNearestNeighbors::runTest(): out\n";
+  << "\nKNearestNeighbors_VA::runTest(): out\n";
 }
+
+#endif

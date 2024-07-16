@@ -8,6 +8,10 @@
 #include <iostream>
 #include "arg.hpp"
 
+#ifdef _MNIST_DATASET_VALARRAY
+#include "../k_means_clustering/kmc_va.hpp"
+#endif
+
 //
 //
 //
@@ -26,6 +30,10 @@ enum
   , TEST_COUNT
   , OUTPUT_MODE
 
+#ifdef _MNIST_DATASET_VALARRAY
+  , MODE
+#endif
+
   , MAX_COUNT_ARGS
 };
 
@@ -42,6 +50,11 @@ static std::array<ArgNameValue, MAX_COUNT_ARGS> ARG_NAME =
   , ArgNameValue("k", "interpred as integer; number of clusters, defaults to 10")
   , ArgNameValue("test_count", "interpreted as integer; number of records from test data to test, defaults to 50")
   , ArgNameValue("output_mode", "interpreted as string; defaults to \"delimited\", range: \"delimited\", \"pretty\"")
+
+#ifdef _MNIST_DATASET_VALARRAY
+  , ArgNameValue("mode", "interpreted as string; range: \"valarray\", \"vector\"")
+#endif
+
 };
 
 //
@@ -147,7 +160,61 @@ int main(int argument_count, char** arguments)
   //
   //
 
-  std::cout << "main(): instantiating kmc object with normalized training data\n";
+#ifdef _MNIST_DATASET_VALARRAY
+if (argument_handler._args[MODE].value == std::string("valarray"))
+{
+  std::cout << "main(): instantiating kmc object (VALARRAY) with normalized training data\n";
+
+  start = std::chrono::high_resolution_clock::now();
+
+  KMeansClustering_VA kmc
+  (
+    MnistDatasetNormalized_VA
+    (
+      std::move(mnist_handlers[TRAIN_LABELS])
+      , std::move(mnist_handlers[TRAIN_IMAGES])
+    )
+    , std::stoi(argument_handler._args[TRAIN_COUNT].value)
+    , std::stod(argument_handler._args[TRAIN_EXIT_PERCENT].value)
+    , std::stoi(argument_handler._args[TRAIN_EXIT_UNCHANGED].value)
+    , std::stoi(argument_handler._args[TRAIN_EXIT_ITERATIONS].value)
+    , std::stoi(argument_handler._args[K].value)
+  );
+
+  end = std::chrono::high_resolution_clock::now();
+
+  std::cout
+    << "main(): kmc object (VALARRAY) instantiated ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\nmain(): running test (VALARRAY) with normalized test data\n";
+
+  start = std::chrono::high_resolution_clock::now();
+
+  kmc.runTest
+  (
+    MnistDatasetNormalized_VA
+    (
+      std::move(mnist_handlers[TEST_LABELS])
+      , std::move(mnist_handlers[TEST_IMAGES])
+    )
+    , std::stoi(argument_handler._args[TEST_COUNT].value)
+    , std::cout
+    , argument_handler._args[OUTPUT_MODE].value == std::string("pretty") ? KMeansClustering_VA::OutputMode::pretty : KMeansClustering_VA::OutputMode::delimited
+  );
+
+  end = std::chrono::high_resolution_clock::now();
+
+  std::cout
+    << "main(): test (VALARRAY) done, KMeansClustering::runTest() ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\n\nmain(): out\n";
+
+}
+else if (argument_handler._args[MODE].value == std::string("vector"))
+{
+#endif
+
+  std::cout << "main(): instantiating kmc object (VECTOR) with normalized training data\n";
 
   start = std::chrono::high_resolution_clock::now();
 
@@ -168,9 +235,9 @@ int main(int argument_count, char** arguments)
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-    << "main(): kmc object instantiated ["
-    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-    << " ms]\nmain(): running test with normalized test data\n";
+  << "main(): kmc (VECTOR) object instantiated ["
+  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+  << " ms]\nmain(): running test (VECTOR) with normalized test data\n";
 
   start = std::chrono::high_resolution_clock::now();
 
@@ -189,9 +256,13 @@ int main(int argument_count, char** arguments)
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-    << "main(): test done, KMeansClustering::runTest() ["
-    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-    << " ms]\n\nmain(): out\n";
+  << "main(): test (VECTOR) done, KMeansClustering::runTest() ["
+  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+  << " ms]\n\nmain(): out\n";
+
+#ifdef _MNIST_DATASET_VALARRAY
+}
+#endif
 
   return 0;
 }

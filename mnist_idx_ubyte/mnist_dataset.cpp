@@ -1,8 +1,9 @@
 // mnist_dataset.cpp
 // (c) Reza Manoochehrian JUN-2024
-// info@mantam.com
+// www.mantam.com
 
 #include "mnist_dataset.hpp"
+#include <iostream>
 
 MnistDatasetBase::MnistDatasetBase(MnistDatasetBase::Scaling scaling , MnistHandler&& mnistHandlerLabels , MnistHandler&& mnistHandlerImages) noexcept
   : MnistDatasetBase
@@ -14,24 +15,23 @@ MnistDatasetBase::MnistDatasetBase(MnistDatasetBase::Scaling scaling , MnistHand
     )
 { }
 
-MnistDatasetBase::MnistDatasetBase (MnistDatasetBase::Scaling scaling , std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
+MnistDatasetBase::MnistDatasetBase(MnistDatasetBase::Scaling scaling , std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
   : scaling{ scaling }
   , _itemCount{ labels.size() }
   , _featureVectorSize{ featureVectorSize }
   , _items{ _itemCount }
   , _labels{ std::move(labels) }
 {
-  std::vector<unsigned char> vi{ std::move(data) };
-  std::valarray<double> va;
-  size_t count{ vi.size() };
-
-  va.resize(count);
-
-  for (size_t k{ 0 }; k < count; k++)
-    va[k] = vi[k];
+  std::vector<unsigned char> v{ std::move(data) };
 
   for (size_t k{ 0 }; k < _itemCount; k++)
-    _items[k] = va[std::slice(k * _featureVectorSize, _featureVectorSize, 1)];
+  {
+    _items[k].resize(_featureVectorSize);
+    for (size_t i{ 0 }; i < _featureVectorSize; i++)
+    {
+      _items[k][i] = v[k * _featureVectorSize + i];
+    }
+  }
 }
 
 size_t MnistDatasetBase::itemCount() const noexcept { return _itemCount; }
@@ -51,24 +51,24 @@ std::vector<unsigned char> MnistDatasetBase::labels() && noexcept
   return std::move(   _labels   );
 }
 
-std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() const& noexcept
+std::vector<std::vector<double>> MnistDatasetBase::scaledFeatureVectors() const& noexcept
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  return std::vector<std::valarray<double>>(_items.begin(), _items.end());
+  return std::vector<std::vector<double>>(_items.begin(), _items.end());
 }
 
-std::vector<std::valarray<double>> MnistDatasetBase::scaledFeatureVectors() && noexcept
+std::vector<std::vector<double>> MnistDatasetBase::scaledFeatureVectors() && noexcept
 {
   return std::move(   _items   );
 }
 
-std::valarray<double> MnistDatasetBase::scaledFeatureVector(int itemIndex) const
+std::vector<double> MnistDatasetBase::scaledFeatureVector(size_t itemIndex) const
 {
   // C++17: std::move() not required as RVO is guaranteed (and performs a move) for the below return statement
-  return std::valarray<double>(_items[itemIndex]);
+  return std::vector<double>(_items[itemIndex]);
 }
 
-double MnistDatasetBase::scaledFeature(int itemIndex, int featureIndex) const
+double MnistDatasetBase::scaledFeature(size_t itemIndex, size_t featureIndex) const
 {
   return _items[itemIndex][featureIndex];
 }
@@ -84,7 +84,7 @@ MnistDatasetNormalized::MnistDatasetNormalized(MnistHandler&& mnistHandlerLabels
     )
 { }
 
-MnistDatasetNormalized::MnistDatasetNormalized (std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
+MnistDatasetNormalized::MnistDatasetNormalized(std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
   : MnistDatasetBase(MnistDatasetBase::Scaling::normalization, std::move(labels), std::move(data), featureVectorSize)
   , _featureVectorMin{ }
   , _featureVectorMax{ }
@@ -129,23 +129,35 @@ MnistDatasetStandardized::MnistDatasetStandardized(MnistHandler&& mnistHandlerLa
   )
 { }
 
-MnistDatasetStandardized::MnistDatasetStandardized (std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
+MnistDatasetStandardized::MnistDatasetStandardized(std::vector<unsigned char>&& labels , std::vector<unsigned char>&& data , size_t featureVectorSize) noexcept
   : MnistDatasetBase(MnistDatasetBase::Scaling::standardization, std::move(labels), std::move(data), featureVectorSize)
-  , _featureVectorMean( 0., _featureVectorSize)
-  , _featureVectorStdev( 0., _featureVectorSize)
+  , _featureVectorMean( _featureVectorSize, 0. )
+  , _featureVectorStdev( _featureVectorSize, 0. )
 {
-  for (size_t i{ 0 }; i < _itemCount; i++)
-    _featureVectorMean += _items[i];
+  for (size_t i{ 0 }, f; i < _itemCount; i++)
+    for (f = 0; f < _featureVectorSize; f++)
+      _featureVectorMean[f] += _items[i][f];
 
-  _featureVectorMean /= static_cast<int>(_itemCount); // done: mean of each feature
+  double count{ static_cast<double>(_itemCount) };
+
+  for (size_t f{ 0 }; f < _featureVectorSize; f++)
+    _featureVectorMean[f] /= count;
+
+  // done: mean of each feature
 
   //
   //
   //
 
-  for (size_t i{ 0 }; i < _itemCount; i++)
-    _featureVectorStdev += std::pow(_items[i] - _featureVectorMean, 2);
-  _featureVectorStdev = std::sqrt(_featureVectorStdev /= static_cast<int>(_itemCount)); // done: stdev of each feature
+  for (size_t i{ 0 }, f; i < _itemCount; i++)
+    for (f = 0; f < _featureVectorSize; f++)
+      _featureVectorStdev[f] += (_items[i][f] == _featureVectorMean[f]) ? 0. : pow(_items[i][f] - _featureVectorMean[f], 2);
+
+  for (size_t f{ 0 }; f < _featureVectorSize; f++)
+    if (_featureVectorStdev[f])
+      _featureVectorStdev[f] = sqrt(_featureVectorStdev[f] /= count);
+
+  // done: stddev of each feature
 
   //
   //
@@ -153,7 +165,13 @@ MnistDatasetStandardized::MnistDatasetStandardized (std::vector<unsigned char>&&
 
   for (size_t i{ 0 }; i < _itemCount; i++)
   {
-    _items[i] -= _featureVectorMean;
-    _items[i] /= _featureVectorStdev; // SAFE ? STDEV 0 IS RULED OUT !!!
+    for (size_t f{ 0 }; f < _featureVectorSize; f++)
+    {
+      if (_featureVectorStdev[f])
+      {
+        _items[i][f] -= _featureVectorMean[f];
+        _items[i][f] /= _featureVectorStdev[f];
+      }
+    }
   }
 }

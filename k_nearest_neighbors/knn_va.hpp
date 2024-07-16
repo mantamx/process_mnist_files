@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include "../mnist_idx_ubyte/mnist_dataset.hpp"
+#ifdef _MNIST_DATASET_VALARRAY
+
+#include "../mnist_idx_ubyte/mnist_dataset_va.hpp"
 #include <iostream>
 
-class KNearestNeighbors
+class KNearestNeighbors_VA
 {
-  std::vector<std::vector<double>> _training_data;
+  std::vector<std::valarray<double>> _training_data;
   std::vector<unsigned char> _training_labels;
-  size_t _count_features;
 
   enum { STATUS, EXPECTED, RESULT, COUNT, DISTANCE, DURATION };
   static constexpr const char* const P_STR_HEADER{ "Test|Status|Expected|Result|Count|Distance|Duration\n" };
@@ -33,13 +34,15 @@ public:
 //  enum class DistanceType { euclidean /*, manhattan */ };
   enum class OutputMode { pretty, delimited };
 
-  KNearestNeighbors() = delete;
-  KNearestNeighbors(MnistDatasetBase&&) noexcept;
-  ~KNearestNeighbors() = default;
-  KNearestNeighbors(const KNearestNeighbors&) = delete;
-  KNearestNeighbors& operator=(const KNearestNeighbors&) = delete;
-  KNearestNeighbors(KNearestNeighbors&&) = default;
-  KNearestNeighbors& operator=(KNearestNeighbors&&) = default;
+  KNearestNeighbors_VA() = delete;
+  KNearestNeighbors_VA(MnistDatasetBase_VA&&) noexcept;
+  ~KNearestNeighbors_VA() = default;
+  KNearestNeighbors_VA(const KNearestNeighbors_VA&) = delete;
+  KNearestNeighbors_VA& operator=(const KNearestNeighbors_VA&) = delete;
+  KNearestNeighbors_VA(KNearestNeighbors_VA&&) = default;
+  KNearestNeighbors_VA& operator=(KNearestNeighbors_VA&&) = default;
 
-  void runTest(MnistDatasetBase&&, size_t, size_t, size_t, std::ostream& = std::cout, OutputMode = OutputMode::pretty) noexcept;
+  void runTest(MnistDatasetBase_VA&&, size_t, size_t, size_t, std::ostream& = std::cout, OutputMode = OutputMode::pretty) noexcept;
 };
+
+#endif

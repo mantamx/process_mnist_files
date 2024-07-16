@@ -4,18 +4,14 @@
 
 #include "../print_bits/print_bits.hpp"
 #include "../k_nearest_neighbors/knn.hpp"
-#include "../k_means_clustering/kmc.hpp"
 #include <iomanip>
 #include <chrono>
 #include <iostream>
 #include "arg.hpp"
 
-static std::ostream& operator<<(std::ostream& o, const std::valarray<double>& va)
-{
-  for (const auto x : va)
-    o << x << std::endl;
-  return o;
-}
+#ifdef _MNIST_DATASET_VALARRAY
+#include "../k_nearest_neighbors/knn_va.hpp"
+#endif
 
 //
 //
@@ -32,6 +28,10 @@ enum
   , TEST_COUNT
   , OUTPUT_MODE
 
+#ifdef _MNIST_DATASET_VALARRAY
+  , MODE
+#endif
+
   , MAX_COUNT_ARGS
 };
 
@@ -45,6 +45,11 @@ static std::array<ArgNameValue, MAX_COUNT_ARGS> ARG_NAME =
   , ArgNameValue("train_count", "interpretd as integer; number of records from training data to consider for calculations, defaults to 20000")
   , ArgNameValue("test_count", "interpreted as integer; number of records from test data to test, defaults to 50")
   , ArgNameValue("output_mode", "interpreted as string; defaults to \"delimited\", range: \"delimited\", \"pretty\"")
+
+#ifdef _MNIST_DATASET_VALARRAY
+  , ArgNameValue("mode", "interpreted as string; range: \"valarray\", \"vector\"")
+#endif
+
 };
 
 //
@@ -151,7 +156,58 @@ int main(int argument_count, char** arguments)
   //
   //
 
-  std::cout << "main(): instantiating knn object with normalized training data...\n";
+
+#ifdef _MNIST_DATASET_VALARRAY
+  if (argument_handler._args[MODE].value == std::string("valarray"))
+  {
+    std::cout << "main(): instantiating knn object (VALARRAY) with normalized training data...\n";
+
+    start = std::chrono::high_resolution_clock::now();
+
+    KNearestNeighbors_VA knn
+    (
+      MnistDatasetNormalized_VA
+      (
+        std::move(mnist_handlers[TRAIN_LABELS])
+        , std::move(mnist_handlers[TRAIN_IMAGES])
+      )
+    );
+
+    end = std::chrono::high_resolution_clock::now();
+
+    std::cout
+      << "main(): ...knn object (VALARRAY) instantiated ["
+      << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+      << " ms]\nmain(): running test (VALARRAY) with normalized test data...\n";
+
+    start = std::chrono::high_resolution_clock::now();
+
+    knn.runTest
+    (
+      MnistDatasetNormalized_VA
+      (
+        std::move(mnist_handlers[TEST_LABELS])
+        , std::move(mnist_handlers[TEST_IMAGES])
+      )
+      , std::stoi(argument_handler._args[K].value)
+      , std::stoi(argument_handler._args[TRAIN_COUNT].value)
+      , std::stoi(argument_handler._args[TEST_COUNT].value)
+      , std::cout
+      , argument_handler._args[OUTPUT_MODE].value == std::string("pretty") ? KNearestNeighbors_VA::OutputMode::pretty : KNearestNeighbors_VA::OutputMode::delimited
+    );
+
+    end = std::chrono::high_resolution_clock::now();
+
+    std::cout
+      << "main(): ...test (VALARRAY) done, KNearestNeighbors::runTest() ["
+      << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+      << " ms]\n\nmain(): out\n";
+  }
+  else if (argument_handler._args[MODE].value == std::string("vector"))
+  {
+#endif
+
+  std::cout << "main(): instantiating knn object (VECTOR) with normalized training data...\n";
 
   start = std::chrono::high_resolution_clock::now();
 
@@ -172,9 +228,9 @@ int main(int argument_count, char** arguments)
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-  << "main(): ...knn object instantiated ["
-  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-  << " ms]\nmain(): running test with normalized test data...\n";
+    << "main(): ...knn object (VECTOR) instantiated ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\nmain(): running test (VECTOR) with normalized test data...\n";
 
   start = std::chrono::high_resolution_clock::now();
 
@@ -195,9 +251,13 @@ int main(int argument_count, char** arguments)
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-  << "main(): ...test done, KNearestNeighbors::runTest() ["
-  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-  << " ms]\n\nmain(): out\n";
+    << "main(): ...test (VECTOR) done, KNearestNeighbors::runTest() ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\n\nmain(): out\n";
+
+#ifdef _MNIST_DATASET_VALARRAY
+  }
+#endif
 
   return 0;
 }
