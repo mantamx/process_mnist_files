@@ -1,6 +1,6 @@
 // mnist_handler.cpp
 // (c) Reza Manoochehrian JUN-2024
-// reza@mantam.com
+// www.mantam.com
 
 #include "mnist_handler.hpp"
 #include "../print_bits/print_bits.hpp"

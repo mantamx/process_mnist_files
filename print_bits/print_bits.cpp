@@ -1,6 +1,6 @@
 // print_bits.cpp
 // (c) Reza Manoochehrian JUN-2024
-// info@mantam.com
+// www.mantam.com
 
 #include "print_bits.hpp"
 

@@ -1,6 +1,6 @@
 // print_bits.hpp
 // (c) Reza Manoochehrian JUN-2024
-// reza@mantam.com
+// www.mantam.com
 
 #pragma once
 
