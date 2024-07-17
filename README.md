@@ -6,7 +6,7 @@ Came accross MNIST files through **_gtaylor5_**. This saved me, because after on
 Therefore, my task / test project: implement various approaches / techniques for interpreting handwritten digits using MNIST datasets.
 1. K Nearest Neighbors
 2. K-Means Clustering
-3. Naïve Bayes Clustering
+3. Naïve Bayes Classifier
 4. Neural Network
 
 I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
@@ -25,10 +25,34 @@ Therefore argument `-count_train` (see EXAMPLE.exe) has runtime impact.
 Also the distribution of points (images, each a vector in 784-dimensional space) plays a significant role in the outcome of the test. Due to the way I chose to process the data and model the dataset, I don't have the option to introduce an optional parameter to shuffle the training (or what I called reference) data. Can change this, but it's not necessary as I now understand the algorithm and know the effect of the distribution on the outcome. A way to compensate for this effect / dependency is, in my view, to increase `-k`.
 
 ## K-Means Clustering
-_STARTED
+Training is involved. Actually, it is calculating cluster centers. For this implementation, the number of clusters is parameterized, but I have sofar tested mainly with 10.
 
-## Naïve Bayes Clustering
-_NOT STARTED
+As with K Nearest Neighbors, the EXAMPLE app is sufficiently parameterized to allow for playing around with arguments in order to have a better feeling. So far my testing has been to verify the functionality is correct. To better establish a feeling for interaction of arguments in run-time and outcome, I need to play around more.
+
+Training can take quite a long time depending on parameter values (for example, number of clusters, number of training points, and break conditions). Testing is very quick.
+
+Overview of the training approach:
+
+0. **USE TRAINING DATA**. Image data for the calculations, labels for setting clusters as the final step of the training. (After this, the clusters are ready for testing.)
+1. **SET_K**
+2. **DETERMINE INITIAL CLUSTER POINTS (QUASI CENTROIDS)**. In my case, I select one data point of K buckets.
+    ```
+    for (size_t i{ 0 }; i < _count_clusters; i++)
+    {
+      _cluster_centers[i] = _training_data[ ((_count_training_data / _count_clusters) >> 1) + i * _count_training_data / _count_clusters ];
+    }
+    ```
+4. **REPEAT**
+    1. **ASSIGN CLUSTER**. Determine which cluster each point (vector of features) belongs to by calculating its Eucledean distance (vector) to each cluster. The cluster to which the distance is smallest, is the one.
+    2. **CHECK BREAK CONDITIONS**
+        1. Percentage change in total distance is less than a prameterized value. **_Total distance_**: Calculate the distance of each point to the center of the cluster it is assigned to, which is by definition the minimum of all the point's distances to the K clusters. Square this distance. Sum for all points. This is a measure of total distance or error, and it is a decreasing function of k, with the minimum value of 0 when K equals the number of points (each data point would be centroid of a cluster comprised of only that point). **_A note on percentage change_**: Given the algorithm of determining the new cluster centers, it is guaranteed that the total distance for a given K never increases accross the iterations. However, this does not apply to the percentage change from one iteration to the next.
+        2. Maximum number of iterations (parameter) is reached.
+        3. The total distance is unchanged for n (parameter) consecutive iterations.
+    3. **DETERMINE NEW (REAL) CENTROIDS**. The mean of the points assigned to a cluster is calculated, and this mean is the new center, the centroid.
+5. **SET_CLUSTER**. Determine the most frequent class among the points that are assigned to each cluster as of the last iteration (state directly before a break clause kicked in). This is where the labels are used. **_A note on setting clusters and most frequent classes_**: Given the example of K=10 clusters for digits 0 through 9, when setting the clusters, it is not guaranteed that each of the 10 clusters **clearly** or at all represents a class. That is, can be (and in it came up in my tests as an issue that I have to address) that merely based on most frequent class numbers, a class is represented by more than one cluster (collision), thus leaving classes that are not represented by any of the 10 clusters. That is, K has to be incremented by the number of collisions. But another issue can come up: The most frequent class may not be a clear representative by an acceptable parameterized percentage. For example, if 1000 points are assigned to a cluster and the most frequent class occurs 950 times, then it is a quite good and safe outcome that the cluster represents the most frequent class. But if the first most frequent class occurs 500 times, and the second 400, then it poses an issue when testing and classifying based on the cluster assignment resulting from the training. I found that frequencies of 4|9, 7|9, and 5|3 were not sufficiently apart, and this clearly resonated in the subsequent tests `KMeansClustering::runTest()` **At the time of this update I'm looking into this and trying to come up with an acceptable (or any) approach to a solution**.
+
+## Naïve Bayes Classifier
+_STARTED
 
 ## Neural Network
 _NOT STARTED
