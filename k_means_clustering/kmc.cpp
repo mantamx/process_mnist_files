@@ -15,40 +15,28 @@ std::pair<size_t, double> KMeansClustering::determine_cluster
   std::vector<double>& v_data
 )
 {
-  double distance_square{ 0. };
+  double min_distance_square{ 0. };
 
   for (size_t f{ 0 }; f < _count_features; f++)
-    if (_features_mask[f] || v_data[f])
-      distance_square += pow((_cluster_centers[0][f] - v_data[f]), 2);
+    if (_features_mask[f])
+      min_distance_square += pow((_cluster_centers[0][f] - v_data[f]), 2);
 
-  double distance{ std::sqrt(distance_square) };
-  double min_distance_square{ distance_square };
-  double min_distance{ distance };
+  double distance_square;
   size_t current_cluster{ 0 };
 
   for (size_t c{ 1 }, f; c < _count_clusters; c++)
   {
-    distance_square = 0.;
-    if (_features_mask[0] || v_data[0])
-      distance_square = pow((_cluster_centers[c][0] - v_data[0]), 2);
+    distance_square = _features_mask[0] ? distance_square = pow((_cluster_centers[c][0] - v_data[0]), 2) : 0.;
+
     for (f = 1; f < _count_features; f++)
-      if (_features_mask[f] || v_data[f])
+      if (_features_mask[f])
         distance_square += pow((_cluster_centers[c][f] - v_data[f]), 2);
 
-    distance = sqrt(distance_square);
-
-    if (min_distance < distance)
-    {
-      distance = min_distance;
-      distance_square = min_distance_square;
-    }
-    else
+    if (distance_square < min_distance_square)
     {
       current_cluster = c;
+      min_distance_square = distance_square;
     }
-
-    min_distance = distance;
-    min_distance_square = distance_square;
   }
 
   return std::make_pair(current_cluster, min_distance_square);
@@ -111,9 +99,6 @@ KMeansClustering::KMeansClustering
   for (size_t x{ 0 }; x < _count_clusters; x++)
     cluster_to_point[x].resize(_count_training_data);
 
-  double distance{ 0. };
-  double distance_square{ 0. };
-  double min_distance{ std::numeric_limits<double>::max() };
   std::pair<size_t, double> currentCluster_and_minDistanceSquare;
   size_t count_current_cluster_changes{ 0 };
 
@@ -128,7 +113,7 @@ KMeansClustering::KMeansClustering
   std::chrono::high_resolution_clock::time_point end_cluster_assign;
 
   //
-  // STEP ONE: select cluster centers
+  // STEP ONE: select quasi centroids
   //  
 
   for (size_t i{ 0 }; i < _count_clusters; i++)
@@ -150,8 +135,6 @@ KMeansClustering::KMeansClustering
 
     for (size_t p{ 0 }; p < _count_training_data; p++)
     {
-      min_distance = std::numeric_limits<double>::max();
-
       currentCluster_and_minDistanceSquare = determine_cluster(_training_data[p]);
 
       if (_point_to_cluster[p] != currentCluster_and_minDistanceSquare.first)
@@ -209,7 +192,7 @@ KMeansClustering::KMeansClustering
         break;
       }
     }
-    else
+    else // this can / should never occur
     {
       output
         << iteration
@@ -225,9 +208,9 @@ KMeansClustering::KMeansClustering
     }
 
     //
-    // STEP THREE: new clusters
+    // STEP THREE: new (real) centroids
     //
-    // new center of cluster: each element of feature vector is the mean of current cluster points
+    // new center of cluster: each element of feature vector is the mean of that feature in current cluster points
     //
 
     double dcount;
@@ -253,7 +236,7 @@ KMeansClustering::KMeansClustering
 
     count_current_cluster_changes = 0;
     cluster_to_point_current_sizes.assign(_count_clusters, 0);
-    distance = total_distance = percentage_change = 0.;
+    total_distance = percentage_change = 0.;
   }
 
   if (iteration == _training_exit_on_iterations)
@@ -267,6 +250,9 @@ KMeansClustering::KMeansClustering
 
   set_clusters();
 
+//  for (size_t i{ 0 }; i < _count_clusters; i++)
+//    output << "KMeansClustering::KMeansClustering(): cluster_" << i << ": " << static_cast<int>(_cluster_class[i]) << '\n';
+
   auto out = std::chrono::high_resolution_clock::now();
 
   output << "KMeansClustering::KMeansClustering(): out " << std::chrono::duration_cast<std::chrono::milliseconds>(out - in).count() << " ms\n";
@@ -274,10 +260,14 @@ KMeansClustering::KMeansClustering
 
 void KMeansClustering::set_clusters()
 {
+  //
+  // WORK-IN-PROGRESS to find a solution to 'collisions' and 'most-frequent-by-narrow-margin'
+  //
+  // the current insufficient accuracy in assigning clusters reflects in subsequent tests in KMeansClustering::runTest()
+
   std::vector<std::map<unsigned char, size_t>> v_cluster_frequency_map(_count_clusters);
   std::map<unsigned char, size_t>::iterator map_iterator;
   unsigned char max_frequency_label{ '\0' };
-  int max_frequency_count{ 1 };
 
   for (size_t p{ 0 }; p < _count_training_data; p++)
   {
@@ -289,17 +279,29 @@ void KMeansClustering::set_clusters()
     {
       map_iterator->second++;
     }
+  }
 
-    std::vector<std::pair<unsigned char, size_t>> v(v_cluster_frequency_map[_point_to_cluster[p]].begin(), v_cluster_frequency_map[_point_to_cluster[p]].end());
+  std::vector<std::vector<std::pair<unsigned char, size_t>>> vv(_count_clusters);
+  for (size_t c{ 0 }; c < _count_clusters; c++)
+  {
+    vv[c] = std::vector<std::pair<unsigned char, size_t>>(v_cluster_frequency_map[c].begin(), v_cluster_frequency_map[c].end());
     std::sort
     (
-      v.begin()
-      , v.end()
+      vv[c].begin()
+      , vv[c].end()
       , [](std::pair<unsigned char, size_t>& a, std::pair<unsigned char, size_t>& b) { return a.second > b.second; }
     );
-
-    _cluster_class[ _point_to_cluster[p] ] = v.begin()->first;
   }
+
+//  std::cout << "CLUSTER|CLASS|COUNT\n";
+//  for (size_t c{ 0 }; c < _count_clusters; c++)
+//  {
+//    for (const auto& x : vv[c])
+//      std::cout << c << '|' << static_cast<int>(x.first) << '|' << x.second << '\n';
+//
+//_cluster_class[c] = vv[c].begin()->first;
+//  }
+
 }
 
 void KMeansClustering::runTest
