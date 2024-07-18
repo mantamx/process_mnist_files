@@ -123,6 +123,8 @@ int main(int argument_count, char** arguments)
     , myCheck
   );
 
+  auto main_start = std::chrono::high_resolution_clock::now();
+
   for (size_t x{ 0 }, count{ argument_handler._args.size() }; x < count; x++)
   {
     std::cout << "main(): arg_" << x << ": " << argument_handler._args[x].name << '|' << argument_handler._args[x].value << '\n';
@@ -235,9 +237,9 @@ else if (argument_handler._args[MODE].value == std::string("vector"))
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-  << "main(): kmc (VECTOR) object instantiated ["
-  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-  << " ms]\nmain(): running test (VECTOR) with normalized test data\n";
+    << "main(): kmc (VECTOR) object instantiated ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\nmain(): running test (VECTOR) with normalized test data\n";
 
   start = std::chrono::high_resolution_clock::now();
 
@@ -256,13 +258,20 @@ else if (argument_handler._args[MODE].value == std::string("vector"))
   end = std::chrono::high_resolution_clock::now();
 
   std::cout
-  << "main(): test (VECTOR) done, KMeansClustering::runTest() ["
-  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-  << " ms]\n\nmain(): out\n";
+    << "main(): test (VECTOR) done, KMeansClustering::runTest() ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+    << " ms]\n";
 
 #ifdef _MNIST_DATASET_VALARRAY
 }
 #endif
+
+  auto main_end = std::chrono::high_resolution_clock::now();
+
+  std::cout
+    << "main(): out ["
+    << std::chrono::duration_cast<std::chrono::milliseconds>(main_end - main_start).count()
+    << " ms]\n";
 
   return 0;
 }

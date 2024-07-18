@@ -57,7 +57,7 @@ KMeansClustering::KMeansClustering
     optimization += _features_mask[f];
   }
   output << "KMeansClustering::KMeansClustering(): training optimization: " << (_count_features - optimization) << " (of " << _count_features << ") x " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new centroid calcs per line below\n";
-  output << "KMeansClustering::KMeansClustering(): in\n#|CLST_ASSIGN|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
+  output << "KMeansClustering::KMeansClustering(): in\n#|DUR|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
 
   //
   //
@@ -110,9 +110,11 @@ KMeansClustering::KMeansClustering
       currentCluster_and_minDistanceSquare = determine_cluster(_training_data[p]);
 
       if (_point_to_cluster[p] != currentCluster_and_minDistanceSquare.first)
+      {
         count_current_cluster_changes++;
+        _point_to_cluster[p] = currentCluster_and_minDistanceSquare.first;
+      }
 
-      _point_to_cluster[p] = currentCluster_and_minDistanceSquare.first;
       cluster_to_point[ currentCluster_and_minDistanceSquare.first ][ cluster_to_point_current_sizes[currentCluster_and_minDistanceSquare.first]++ ] = p;
 
       total_distance += currentCluster_and_minDistanceSquare.second;
@@ -124,19 +126,19 @@ KMeansClustering::KMeansClustering
     // break condition
     //
 
+    percentage_change = (min_total_distance - total_distance) / min_total_distance * 100.;
+
+    output
+      << iteration
+      << '|' << std::chrono::duration_cast<std::chrono::milliseconds>(end_cluster_assign - start_cluster_assign).count()
+      << '|' << percentage_change
+      << '|' << total_distance
+      << '|' << (iteration ? min_total_distance : 0.)
+      << '|' << count_current_cluster_changes
+      << '\n';
+
     if (total_distance < min_total_distance)
     {
-      percentage_change = (min_total_distance - total_distance) / min_total_distance * 100.;
-
-      output
-        << iteration
-        << '|' << std::chrono::duration_cast<std::chrono::milliseconds>(end_cluster_assign - start_cluster_assign).count()
-        << '|' << percentage_change
-        << '|' << total_distance
-        << '|' << (iteration ? min_total_distance : 0.)
-        << '|' << count_current_cluster_changes
-        << '\n';
-
       if ((min_total_distance - total_distance) / min_total_distance * 100. < _training_exit_on_percentage_change)
       {
         output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_PERCENTAGE_CHANGE\n";
@@ -149,15 +151,6 @@ KMeansClustering::KMeansClustering
     }
     else if (total_distance == min_total_distance)
     {
-      output
-        << iteration
-        << '|' << std::chrono::duration_cast<std::chrono::milliseconds>(end_cluster_assign - start_cluster_assign).count()
-        << '|' << percentage_change
-        << '|' << total_distance
-        << '|' << (iteration ? min_total_distance : 0.)
-        << '|' << count_current_cluster_changes
-        << '\n';
-
       if (++consecutive_unchanged == _training_exit_on_unchanged_error)
       {
         output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_CONSECUTIVE_UNCHANGED\n";
@@ -166,15 +159,6 @@ KMeansClustering::KMeansClustering
     }
     else // this can / should never occur
     {
-      output
-        << iteration
-        << '|' << std::chrono::duration_cast<std::chrono::milliseconds>(end_cluster_assign - start_cluster_assign).count()
-        << '|' << percentage_change
-        << '|' << total_distance
-        << '|' << (iteration ? min_total_distance : 0.)
-        << '|' << count_current_cluster_changes
-        << '\n';
-
       output << "KMeansClustering::KMeansClustering(): i_" << iteration << ": EXIT_CONDITION_MIN_TOTAL_DISTANCE_INCREASED\n";
       break;
     }
@@ -182,7 +166,7 @@ KMeansClustering::KMeansClustering
     //
     // STEP THREE: new (real) centroids
     //
-    // new center of cluster: each element of feature vector is the mean of that feature in current cluster points
+    // new center of cluster: each element of centroid feature vector is the mean of that feature in current cluster points
     //
 
     double dcount;
