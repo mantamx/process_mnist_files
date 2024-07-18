@@ -57,7 +57,7 @@ KMeansClustering::KMeansClustering
     optimization += _features_mask[f];
   }
   output << "KMeansClustering::KMeansClustering(): training optimization: " << (_count_features - optimization) << " (of " << _count_features << ") x " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new centroid calcs per line below\n";
-  output << "KMeansClustering::KMeansClustering(): in\n#|DUR|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
+  output << "KMeansClustering::KMeansClustering(): #|DUR|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
 
   //
   //
@@ -122,10 +122,6 @@ KMeansClustering::KMeansClustering
 
     end_cluster_assign = std::chrono::high_resolution_clock::now();
 
-    //
-    // break condition
-    //
-
     percentage_change = (min_total_distance - total_distance) / min_total_distance * 100.;
 
     output
@@ -136,6 +132,10 @@ KMeansClustering::KMeansClustering
       << '|' << (iteration ? min_total_distance : 0.)
       << '|' << count_current_cluster_changes
       << '\n';
+
+    //
+    // break condition
+    //
 
     if (total_distance < min_total_distance)
     {
@@ -311,7 +311,6 @@ void KMeansClustering::runTest
   const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
   const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
 
-  bool found{ false };
   int count_error{ 0 };
   int count_success{ 0 };
   static constexpr const char* const P_STR_OK_NOK[]{ "OK", "NOK" };
@@ -350,12 +349,6 @@ void KMeansClustering::runTest
       << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::DISTANCE][OUTPUT_MODE]
       << std::sqrt(currentCluster_and_minDistanceSquare.second)
       << '\n';
-
-    //
-    //
-    //
-
-    found = false;
   }
 
   auto end_test = std::chrono::high_resolution_clock::now();
