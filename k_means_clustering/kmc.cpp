@@ -10,38 +10,6 @@
 #include <utility>
 #include <tuple>
 
-std::pair<size_t, double> KMeansClustering::determine_cluster
-(
-  std::vector<double>& v_data
-)
-{
-  double min_distance_square{ 0. };
-
-  for (size_t f{ 0 }; f < _count_features; f++)
-    if (_features_mask[f])
-      min_distance_square += pow((_cluster_centers[0][f] - v_data[f]), 2);
-
-  double distance_square;
-  size_t current_cluster{ 0 };
-
-  for (size_t c{ 1 }, f; c < _count_clusters; c++)
-  {
-    distance_square = _features_mask[0] ? distance_square = pow((_cluster_centers[c][0] - v_data[0]), 2) : 0.;
-
-    for (f = 1; f < _count_features; f++)
-      if (_features_mask[f])
-        distance_square += pow((_cluster_centers[c][f] - v_data[f]), 2);
-
-    if (distance_square < min_distance_square)
-    {
-      current_cluster = c;
-      min_distance_square = distance_square;
-    }
-  }
-
-  return std::make_pair(current_cluster, min_distance_square);
-}
-
 KMeansClustering::KMeansClustering
 (
   MnistDatasetBase&& training_dataset
@@ -65,7 +33,7 @@ KMeansClustering::KMeansClustering
   , _cluster_class(count_clusters)
   , _features_mask( _count_features, 1 )
 {
-  output << "KMeansClustering::KMeansClustering(): in\n#|CLST_ASSIGN|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
+  output << "KMeansClustering::KMeansClustering(): in\n";
 
   auto in = std::chrono::high_resolution_clock::now();
 
@@ -88,7 +56,8 @@ KMeansClustering::KMeansClustering
     }
     optimization += _features_mask[f];
   }
-  std::cout << "KMeansClustering::KMeansClustering(): training optimization:" << (_count_features - optimization) << " of " << _count_features << " times " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new-center calculations per line of output below\n";
+  output << "KMeansClustering::KMeansClustering(): training optimization: " << (_count_features - optimization) << " (of " << _count_features << ") x " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new centroid calcs per line below\n";
+  output << "KMeansClustering::KMeansClustering(): in\n#|CLST_ASSIGN|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
 
   //
   //
@@ -132,6 +101,9 @@ KMeansClustering::KMeansClustering
     //
 
     start_cluster_assign = std::chrono::high_resolution_clock::now();
+
+    for (size_t i{ 0 }; i < _count_clusters; i++)
+      cluster_to_point_current_sizes[i] = 0;
 
     for (size_t p{ 0 }; p < _count_training_data; p++)
     {
@@ -235,7 +207,6 @@ KMeansClustering::KMeansClustering
     //
 
     count_current_cluster_changes = 0;
-    cluster_to_point_current_sizes.assign(_count_clusters, 0);
     total_distance = percentage_change = 0.;
   }
 
@@ -258,10 +229,47 @@ KMeansClustering::KMeansClustering
   output << "KMeansClustering::KMeansClustering(): out " << std::chrono::duration_cast<std::chrono::milliseconds>(out - in).count() << " ms\n";
 }
 
+std::pair<size_t, double> KMeansClustering::determine_cluster
+(
+  std::vector<double>& v_data
+)
+{
+  double min_distance_square{ 0. };
+
+  for (size_t f{ 0 }; f < _count_features; f++)
+    if (_features_mask[f])
+      min_distance_square += pow((_cluster_centers[0][f] - v_data[f]), 2);
+
+  double distance_square;
+  size_t current_cluster{ 0 };
+
+  for (size_t c{ 1 }, f; c < _count_clusters; c++)
+  {
+    distance_square = _features_mask[0] ? distance_square = pow((_cluster_centers[c][0] - v_data[0]), 2) : 0.;
+
+    for (f = 1; f < _count_features; f++)
+      if (_features_mask[f])
+        distance_square += pow((_cluster_centers[c][f] - v_data[f]), 2);
+
+    if
+    (
+      distance_square > 1 && min_distance_square > 1 && distance_square < min_distance_square
+      || distance_square != min_distance_square && sqrt(distance_square) < sqrt(min_distance_square)
+    )
+    {
+      current_cluster = c;
+      min_distance_square = distance_square;
+    }
+
+  }
+
+  return std::make_pair(current_cluster, min_distance_square);
+}
+
 void KMeansClustering::set_clusters()
 {
   //
-  // WORK-IN-PROGRESS to find a solution to 'collisions' and 'most-frequent-by-narrow-margin'
+  // TODO: find a solution to 'collisions' and 'most-frequent-by-narrow-margin'
   //
   // the current insufficient accuracy in assigning clusters reflects in subsequent tests in KMeansClustering::runTest()
 
@@ -293,14 +301,14 @@ void KMeansClustering::set_clusters()
     );
   }
 
-//  std::cout << "CLUSTER|CLASS|COUNT\n";
-//  for (size_t c{ 0 }; c < _count_clusters; c++)
-//  {
+  std::cout << "CLUSTER|CLASS|COUNT\n";
+  for (size_t c{ 0 }; c < _count_clusters; c++)
+  {
 //    for (const auto& x : vv[c])
 //      std::cout << c << '|' << static_cast<int>(x.first) << '|' << x.second << '\n';
-//
-//_cluster_class[c] = vv[c].begin()->first;
-//  }
+
+_cluster_class[c] = vv[c].begin()->first;
+  }
 
 }
 
