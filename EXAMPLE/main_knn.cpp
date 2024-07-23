@@ -26,7 +26,6 @@ enum
   , K
   , TRAIN_COUNT
   , TEST_COUNT
-  , OUTPUT_MODE
 
 #ifdef _MNIST_DATASET_VALARRAY
   , MODE
@@ -44,7 +43,6 @@ static std::array<ArgNameValue, MAX_COUNT_ARGS> ARG_NAME =
   , ArgNameValue("k", "interpreted as integer; defaults to 3, range: 1...<train_count>")
   , ArgNameValue("train_count", "interpretd as integer; number of records from training data to consider for calculations, defaults to 20000")
   , ArgNameValue("test_count", "interpreted as integer; number of records from test data to test, defaults to 50")
-  , ArgNameValue("output_mode", "interpreted as string; defaults to \"delimited\", range: \"delimited\", \"pretty\"")
 
 #ifdef _MNIST_DATASET_VALARRAY
   , ArgNameValue("mode", "interpreted as string; range: \"valarray\", \"vector\"")
@@ -83,12 +81,6 @@ int main(int argument_count, char** arguments)
       {
         args[TEST_COUNT].value = "10";
         std::cout << "argument check: setting \'" << args[TEST_COUNT].name << "\' to default 10\n";
-      }
-
-      if (args[OUTPUT_MODE].value.length() == 0)
-      {
-        args[OUTPUT_MODE].value = "delimited";
-        std::cout << "argument check: setting \'" << args[OUTPUT_MODE].name << "\' to default \'delimited\'\n";
       }
     };
 
@@ -193,7 +185,6 @@ int main(int argument_count, char** arguments)
       , std::stoi(argument_handler._args[TRAIN_COUNT].value)
       , std::stoi(argument_handler._args[TEST_COUNT].value)
       , std::cout
-      , argument_handler._args[OUTPUT_MODE].value == std::string("pretty") ? KNearestNeighbors_VA::OutputMode::pretty : KNearestNeighbors_VA::OutputMode::delimited
     );
 
     end = std::chrono::high_resolution_clock::now();
@@ -245,7 +236,6 @@ int main(int argument_count, char** arguments)
     , std::stoi(argument_handler._args[TRAIN_COUNT].value)
     , std::stoi(argument_handler._args[TEST_COUNT].value)
     , std::cout
-    , argument_handler._args[OUTPUT_MODE].value == std::string("pretty") ? KNearestNeighbors::OutputMode::pretty : KNearestNeighbors::OutputMode::delimited
   );
 
   end = std::chrono::high_resolution_clock::now();

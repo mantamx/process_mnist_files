@@ -28,7 +28,6 @@ enum
   , TRAIN_EXIT_ITERATIONS
   , K
   , TEST_COUNT
-  , OUTPUT_MODE
 
 #ifdef _MNIST_DATASET_VALARRAY
   , MODE
@@ -49,7 +48,6 @@ static std::array<ArgNameValue, MAX_COUNT_ARGS> ARG_NAME =
   , ArgNameValue("train_exit_on_max_iterations", "interpred as integer; exit training after this many iterations, defaults to 50")
   , ArgNameValue("k", "interpred as integer; number of clusters, defaults to 10")
   , ArgNameValue("test_count", "interpreted as integer; number of records from test data to test, defaults to 50")
-  , ArgNameValue("output_mode", "interpreted as string; defaults to \"delimited\", range: \"delimited\", \"pretty\"")
 
 #ifdef _MNIST_DATASET_VALARRAY
   , ArgNameValue("mode", "interpreted as string; range: \"valarray\", \"vector\"")
@@ -106,12 +104,6 @@ int main(int argument_count, char** arguments)
       {
         args[TEST_COUNT].value = "50";
         std::cout << "argument check: setting \'" << args[TEST_COUNT].name << "\' to default 50\n";
-      }
-
-      if (args[OUTPUT_MODE].value.length() == 0)
-      {
-        args[OUTPUT_MODE].value = "delimited";
-        std::cout << "argument check: setting \'" << args[OUTPUT_MODE].name << "\' to default \'delimited\'\n";
       }
     };
 
@@ -252,7 +244,6 @@ else if (argument_handler._args[MODE].value == std::string("vector"))
     )
     , std::stoi(argument_handler._args[TEST_COUNT].value)
     , std::cout
-    , argument_handler._args[OUTPUT_MODE].value == std::string("pretty") ? KMeansClustering::OutputMode::pretty : KMeansClustering::OutputMode::delimited
   );
 
   end = std::chrono::high_resolution_clock::now();
