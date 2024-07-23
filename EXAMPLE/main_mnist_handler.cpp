@@ -10,10 +10,6 @@
 #include <iostream>
 #include "arg.hpp"
 
-#ifdef _MNIST_DATASET_VALARRAY
-#include "../mnist_idx_ubyte/mnist_dataset_va.hpp"
-#endif
-
 //
 //
 //
@@ -34,26 +30,6 @@ static std::array<ArgNameValue, MAX_COUNT_ARGS> ARG_NAME =
   , ArgNameValue("path_test_images", "interpreted as string; path to MNIST binary file with test image data")
   , ArgNameValue("path_test_labels", "interpreted as string; path to test file with labels")
 };
-
-#ifdef _MNIST_DATASET_VALARRAY
-
-static std::ostream& operator<<(std::ostream& o, const std::vector<std::valarray<double>>& v)
-{
-  for (const auto& x : v)
-    for (const auto f : x)
-      o << f << std::endl;
-  return o;
-}
-
-static std::ostream& operator<<(std::ostream& o, const std::vector<std::vector<double>>& v)
-{
-  for (const auto& x : v)
-    for (const auto f : x)
-      o << f << std::endl;
-  return o;
-}
-
-#endif
 
 //
 //
@@ -169,101 +145,6 @@ int main(int argument_count, char** arguments)
     mnist_handlers[f].prettyPrintItem(MnistHandler::FileType::image, std::cout, 40);
     std::cout << std::endl;
   }
-
-#ifdef _MNIST_DATASET_VALARRAY
-
-  std::cout << "main(): compare handler implementations based on std::valarray and std::vector\n";
-
-  //
-  // normalized features
-  //
-
-  MnistDatasetNormalized_VA n
-  (
-    std::move(mnist_handlers[TRAIN_LABELS])
-    , std::move(mnist_handlers[TRAIN_IMAGES])
-  );
-
-  std::vector<std::valarray<double>> fv_array
-  =
-  {
-    n.scaledFeatureVector(0)
-    , n.scaledFeatureVector(1)
-    , n.scaledFeatureVector(10)
-    , n.scaledFeatureVector(11)
-    , n.scaledFeatureVector(110)
-    , n.scaledFeatureVector(1000)
-  };
-
-  std::cout << "main(): print normalized valarray\n";
-  std::cout << fv_array << std::endl;
-
-  MnistDatasetNormalized n_v
-  (
-    std::move(MnistHandler(MnistHandler::FileType::label, argument_handler._args[PATH_TRAIN_LABELS].value))
-    , std::move(MnistHandler(MnistHandler::FileType::image, argument_handler._args[PATH_TRAIN_IMAGES].value))
-  );
-
-  std::vector<std::vector<double>> fv_v_array
-  =
-  {
-    n_v.scaledFeatureVector(0)
-    , n_v.scaledFeatureVector(1)
-    , n_v.scaledFeatureVector(10)
-    , n_v.scaledFeatureVector(11)
-    , n_v.scaledFeatureVector(110)
-    , n_v.scaledFeatureVector(1000)
-  };
-
-  std::cout << "main(): print normalized vector\n";
-  std::cout << fv_v_array << std::endl;
-
-  //
-  // standardized features
-  //
-
-  {
-    MnistDatasetStandardized_VA n
-    (
-      MnistHandler(MnistHandler::FileType::label, argument_handler._args[PATH_TRAIN_LABELS].value)
-      , MnistHandler(MnistHandler::FileType::image, argument_handler._args[PATH_TRAIN_IMAGES].value)
-    );
-
-    std::vector<std::valarray<double>> fv_array
-    =
-    {
-      n.scaledFeatureVector(0)
-      , n.scaledFeatureVector(1)
-      , n.scaledFeatureVector(10)
-      , n.scaledFeatureVector(11)
-      , n.scaledFeatureVector(110)
-      , n.scaledFeatureVector(1000)
-    };
-
-    std::cout << "main(): print standardized valarray\n";
-    std::cout << fv_array << std::endl;
-
-    MnistDatasetStandardized n_v
-    (
-      MnistHandler(MnistHandler::FileType::label, argument_handler._args[PATH_TRAIN_LABELS].value)
-      , MnistHandler(MnistHandler::FileType::image, argument_handler._args[PATH_TRAIN_IMAGES].value)
-    );
-
-    std::vector<std::vector<double>> fv_v_array
-    =
-    {
-      n_v.scaledFeatureVector(0)
-      , n_v.scaledFeatureVector(1)
-      , n_v.scaledFeatureVector(10)
-      , n_v.scaledFeatureVector(11)
-      , n_v.scaledFeatureVector(110)
-      , n_v.scaledFeatureVector(1000)
-    };
-
-    std::cout << "main(): print stadardized vector\n";
-    std::cout << fv_v_array << std::endl;
-  }
-#endif
 
   std::cout << "main(): out\n";
 
