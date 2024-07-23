@@ -13,25 +13,9 @@ class KNearestNeighbors
   std::vector<unsigned char> _training_labels;
   size_t _count_features;
 
-  enum { STATUS, EXPECTED, RESULT, COUNT, DISTANCE, DURATION };
-  static constexpr const char* const P_STR_HEADER{ "Test|Status|Expected|Result|Count|Distance|Duration\n" };
-  static constexpr const char* const P_STR_ARRAY_2
-    [6] // TOKEN
-    [2] // MODE: pretty, delimited
-    =
-  {
-    { ", status = ", "|" }
-    , { ", expected = ", "|" }
-    , { ", result = ", "|" }
-    , { ", count = ", "|" }
-    , { ", distance = { ", "|" }
-    , { ", duration = ", "|"}
-  };
-
 public:
 
 //  enum class DistanceType { euclidean /*, manhattan */ };
-  enum class OutputMode { pretty, delimited };
 
   KNearestNeighbors() = delete;
   KNearestNeighbors(MnistDatasetBase&&) noexcept;
@@ -41,5 +25,5 @@ public:
   KNearestNeighbors(KNearestNeighbors&&) = default;
   KNearestNeighbors& operator=(KNearestNeighbors&&) = default;
 
-  void runTest(MnistDatasetBase&&, size_t, size_t, size_t, std::ostream& = std::cout, OutputMode = OutputMode::pretty) noexcept;
+  void runTest(MnistDatasetBase&&, size_t, size_t, size_t, std::ostream& = std::cout) noexcept;
 };

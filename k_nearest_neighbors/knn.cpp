@@ -20,7 +20,6 @@ void KNearestNeighbors::runTest
   , size_t count_train_items
   , size_t count_items_to_test
   , std::ostream& output
-  , OutputMode output_mode
 ) noexcept
 {
   auto start = std::chrono::high_resolution_clock::now();
@@ -32,9 +31,7 @@ void KNearestNeighbors::runTest
   output << "KNearestNeighbors::runTest(): in\n";
 
   if (k < 1)
-  {
     output << "KNearestNeighbors::runTest(): setting k argument to 1\n";
-  }
 
   std::vector<std::vector<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
   std::vector<unsigned char> test_labels{ std::move(test_dataset).labels() };
@@ -44,7 +41,6 @@ void KNearestNeighbors::runTest
   size_t current_k_less_1{ COUNT_K_LESS_1 };
   const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
   const size_t COUNT_TRAINING_DATA{ count_train_items <= _training_data.size() ? count_train_items : _training_data.size() };
-  const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
 
   std::vector<double> temp_distance(COUNT_TRAINING_DATA);
   std::vector<double> vector_k_nearest(COUNT_TRAINING_DATA);
@@ -70,23 +66,23 @@ void KNearestNeighbors::runTest
   bool found{ false };
   int count_error{ 0 };
   int count_success{ 0 };
-  static constexpr const char* const P_STR_OK_NOK[]{ "OK", "NOK" };
 
   //
   //
   //
 
   output
-  << "KNearestNeighbors::runTest(): TEST_START:\n\tk=" << COUNT_K
-  << "\n\ttraining_data=" << COUNT_TRAINING_DATA
-  << "\n\ttest_data=" << COUNT_TEST_DATA << '\n';
+    << "KNearestNeighbors::runTest(): TEST_START:\n\tk=" << COUNT_K
+    << "\n\ttraining_data=" << COUNT_TRAINING_DATA
+    << "\n\ttest_data=" << COUNT_TEST_DATA << '\n';
 
-  if (OUTPUT_MODE)
-    output << KNearestNeighbors::P_STR_HEADER;
+  static constexpr const char* const P_STR_OK_NOK[]{ "OK", "NOK" };
+  enum { TEST_ID, STATUS, EXPECTED, RESULT, COUNT, DISTANCE, DURATION, COUNT_LABELS };
+  output << "Test|Status|Expected|Result|Count|Distance|Duration\n";
 
   auto start_test = std::chrono::high_resolution_clock::now();
 
-  for (size_t iTestData{ 0 }, iTrainingData; iTestData < COUNT_TEST_DATA; iTestData++)
+  for (size_t iTestData{ 0 }, iTrainingData, z; iTestData < COUNT_TEST_DATA; iTestData++)
   {
     // STEP ONE: calculate distances from reference item to each item in training data
     // COST: count_test_data x count_training_data x calculate distance
@@ -152,33 +148,20 @@ void KNearestNeighbors::runTest
     end_item_test = std::chrono::high_resolution_clock::now();
 
     output
+      << "TEST_" << (iTestData + 1)
+      << '|' << P_STR_OK_NOK[ test_labels[iTestData] == max_frequency_label ? (count_success++, 0) : (count_error++, 1) ]
+      << '|' << static_cast<int>(test_labels[iTestData])
+      << '|' << static_cast<int>(max_frequency_label)
+      << '|' << max_frequency_count
+      << '|';
 
-    << "TEST_" << (iTestData + 1)
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::STATUS] [OUTPUT_MODE]
-    << P_STR_OK_NOK [ test_labels[iTestData] == max_frequency_label ? (count_success++, 0) : (count_error++, 1) ]
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::EXPECTED] [OUTPUT_MODE]
-    << static_cast<int>(test_labels[iTestData])
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::RESULT] [OUTPUT_MODE]
-    << static_cast<int>(max_frequency_label)
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::COUNT] [OUTPUT_MODE]
-    << max_frequency_count
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::DISTANCE] [OUTPUT_MODE];
-
-    for (int k = 0; k < current_k_less_1; k++)
-      output << vector_k_nearest[k] << ' ';
+    for (z = 0; z < current_k_less_1; z++)
+      std::cout << vector_k_nearest[z] << ' ';
 
     output
-
-    << vector_k_nearest[k]
-
-    << KNearestNeighbors::P_STR_ARRAY_2 [KNearestNeighbors::DURATION] [OUTPUT_MODE]
-    << std::chrono::duration_cast<std::chrono::milliseconds>(end_item_test - start_item_test).count()
-    << " ms\n";
+      << vector_k_nearest[z]
+      << '|' << std::chrono::duration_cast<std::chrono::milliseconds>(end_item_test - start_item_test).count()
+      << " ms\n";
 
     //
     //
