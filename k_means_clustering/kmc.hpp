@@ -26,22 +26,7 @@ class KMeansClustering
   std::pair<size_t, double> determine_cluster(std::vector<double>&);
   void set_clusters();
 
-  enum { STATUS, EXPECTED, RESULT, DISTANCE, DURATION };
-  static constexpr const char* const P_STR_HEADER{ "Test|Status|Expected|Result|Distance\n" };
-  static constexpr const char* const P_STR_ARRAY_2
-    [4] // TOKEN
-    [2] // MODE: pretty, delimited
-    =
-  {
-    { ", status = ", "|" }
-    , { ", expected = ", "|" }
-    , { ", result = ", "|" }
-    , { ", distance = { ", "|" }
-  };
-
 public:
-
-  enum class OutputMode { pretty, delimited };
 
   KMeansClustering() = delete;
   KMeansClustering(MnistDatasetBase&&, size_t, double, int, int, size_t, std::ostream & = std::cout) noexcept;
@@ -51,5 +36,5 @@ public:
   KMeansClustering(KMeansClustering&&) = default;
   KMeansClustering& operator=(KMeansClustering&&) = default;
 
-  void runTest(MnistDatasetBase&&, size_t, std::ostream & = std::cout, OutputMode = OutputMode::pretty) noexcept;
+  void runTest(MnistDatasetBase&&, size_t, std::ostream & = std::cout) noexcept;
 };

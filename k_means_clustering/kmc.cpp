@@ -56,8 +56,8 @@ KMeansClustering::KMeansClustering
     }
     optimization += _features_mask[f];
   }
-  output << "KMeansClustering::KMeansClustering(): training optimization: " << (_count_features - optimization) << " (of " << _count_features << ") x " << _count_training_data << " = " << ((_count_features - optimization) * _count_training_data) << " new centroid calcs per line below\n";
-  output << "KMeansClustering::KMeansClustering(): #|DUR|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
+  output << "KMeansClustering::KMeansClustering(): training optimization: " << (_count_features - optimization) << " (of " << _count_features << ") x " << _count_training_data << " x " << _count_clusters << " = " << ((_count_features - optimization) * _count_training_data * _count_clusters) << " new centroid calcs per line below\n";
+  output << "#|DUR|PCT_CHG|ERR|ERR_MIN|CLST_CHG\n";
 
   //
   //
@@ -285,7 +285,8 @@ void KMeansClustering::set_clusters()
     );
   }
 
-  std::cout << "CLUSTER|CLASS|COUNT\n";
+//  TEST / ANALYSIS
+//  std::cout << "CLUSTER|CLASS|COUNT\n";
   for (size_t c{ 0 }; c < _count_clusters; c++)
   {
 //    for (const auto& x : vv[c])
@@ -301,28 +302,26 @@ void KMeansClustering::runTest
   MnistDatasetBase&& test_dataset
   , size_t count_items_to_test
   , std::ostream& output
-  , OutputMode output_mode
 ) noexcept
 {
-  output << "KMeansClustering::runTest(): in, clusters:" << _count_clusters << '\n';
+  output << "KMeansClustering::runTest(): in\n";
 
   std::vector<std::vector<double>> test_data{ std::move(test_dataset).scaledFeatureVectors() };
   std::vector<unsigned char> test_labels{ std::move(test_dataset).labels() };
   const size_t COUNT_TEST_DATA{ count_items_to_test <= test_dataset.itemCount() ? count_items_to_test : test_dataset.itemCount() };
-  const int OUTPUT_MODE{ output_mode == OutputMode::pretty ? 0 : 1 };
 
   int count_error{ 0 };
   int count_success{ 0 };
+
+  //
+  //
+  //
+
+  output << "KMeansClustering::runTest(): TEST_START:\n";
+
+  enum { TEST_ID, STATUS, EXPECTED, RESULT, DISTANCE, COUNT_LABELS };
   static constexpr const char* const P_STR_OK_NOK[]{ "OK", "NOK" };
-
-  //
-  //
-  //
-
-  output << "KMeansClustering::runTest(): TEST_START:\n\ttest_data=" << COUNT_TEST_DATA << '\n';
-
-  if (OUTPUT_MODE)
-    output << KMeansClustering::P_STR_HEADER;
+  output << "Test|Status|Expected|Result|Distance\n";
 
   double distance{ 0. };
   std::pair<size_t, double> currentCluster_and_minDistanceSquare;
@@ -334,27 +333,20 @@ void KMeansClustering::runTest
     currentCluster_and_minDistanceSquare = determine_cluster(test_data[iTestData]);
 
     output
-
       << "TEST_" << (iTestData + 1)
-
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::STATUS][OUTPUT_MODE]
-      << P_STR_OK_NOK[ test_labels[iTestData] == _cluster_class[currentCluster_and_minDistanceSquare.first] ? (count_success++, 0) : (count_error++, 1) ]
-
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::EXPECTED][OUTPUT_MODE]
-      << static_cast<int>(test_labels[iTestData])
-
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::RESULT][OUTPUT_MODE]
-      << static_cast<int>(_cluster_class[ currentCluster_and_minDistanceSquare.first ])
-
-      << KMeansClustering::P_STR_ARRAY_2[KMeansClustering::DISTANCE][OUTPUT_MODE]
-      << std::sqrt(currentCluster_and_minDistanceSquare.second)
+      << '|' << P_STR_OK_NOK[ test_labels[iTestData] == _cluster_class[currentCluster_and_minDistanceSquare.first] ? (count_success++, 0) : (count_error++, 1) ]
+      << '|' << static_cast<int>(test_labels[iTestData])
+      << '|' << static_cast<int>(_cluster_class[currentCluster_and_minDistanceSquare.first])
+      << '|' << std::sqrt(currentCluster_and_minDistanceSquare.second)
       << '\n';
+
   }
 
   auto end_test = std::chrono::high_resolution_clock::now();
 
   output
-    << "KMeansClustering::runTest(): TEST_DONE:\n\ttest_data=" << COUNT_TEST_DATA
+    << "KMeansClustering::runTest(): TEST_DONE:\n\tclusters" << _count_clusters
+    << "\n\ttest_data=" << COUNT_TEST_DATA
     << "\n\terror=" << count_error
     << "\n\tsuccess=" << count_success
     << "\n\ttest=" << std::chrono::duration_cast<std::chrono::milliseconds>(end_test - start_test).count();
