@@ -83,7 +83,7 @@ _NOT STARTED
 
 # EXAMPLE_*
 These are my playgrounds, and they helped me a lot to feel the intrinsics of KNN by comparing results with changing arguments.
-Initially, there was only one binary in the folder EXAMOLE. But due to developments on K-Means Clustering, I found it better to have separate examples, still all in the folder EXAMPLE. Hence a series of main\_\*.cpp files. Plus, to streamline handling of arguments, their respective checks, and generation of call syntax, arg.hpp is new, inlcuded by all main\_\*.cpp.
+Initially, there was only one binary in the folder EXAMPLE. But due to developments on K-Means Clustering, I found it better to have separate examples, still all in the folder EXAMPLE. Hence a series of main\_\*.cpp files. Plus, to streamline handling of arguments, their respective checks, and generation of call syntax, arg.hpp is new, inlcuded by all main\_\*.cpp.
 
 * main_mnist_handler.cpp
 * main_knn.cpp
