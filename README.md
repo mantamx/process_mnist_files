@@ -53,11 +53,11 @@ Overview of the training approach:
 
 **_UPDATE_**
 
-It seems that the solution is simply to add clusters. Although, _simply_ entails increased processing time for all the calculations when training / defining and later using the clusters. What surprised me a lot was that with a cluster count of 200 the 10000 test points could be classified with 90% accuracy. Moving clusters to 400 did not change much. testing the 10000 points is comparatively lightning fast.
+It seems that the solution is simply to add clusters. Although, _simply_ entails increased processing time for all the calculations when training / defining and later using the clusters. What surprised me a lot was that with a cluster count of 200 the 10000 test points could be classified with 89% accuracy. Setting clusters to 400 did not change much. Testing the 10000 points is comparatively lightning fast.
 
 The times in the table below provide only a rough comparison as my notebook running Windows was not always entirely dedicated to the tests. For example, the test in 3rd run took 12% longer than the second run to complete, although both are based on 200 clusters.
 
-A final point that I use an optimization by determining which features are zero accross all points of the training set. with more points in the training set the number or zero-features tends to decline. Centroid calculations are skipped for these features. For 20000 training points, 88 of the 784 features are zero accross all the points. For 40000 training points it is 71.
+A final point that I use an optimization by determining which features are zero accross all points of the training set. With more points in the training set the number of common zero-features tends to decline. Centroid calculations are skipped for these features. For 20000 training points, 88 of the 784 features are zero accross all the points. For 40000 training points it is 71.
 
 |Training data|Clusters|Train dur [ms]|Loop exit|Loop iter|Test data|Test dur [ms]|Success|Error|
 |---:|---:|---:|:---:|---:|---:|---:|---:|---:|
@@ -67,7 +67,9 @@ A final point that I use an optimization by determining which features are zero 
 |20000|500|7133624|pct_chg_err|48|10000|76539|9185|815|
 |20000|1000|8054173|pct_chg_err|26|10000|244123|9277|723|
 
-Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. This seems to beat KNN, at least according to my tests. Admittedly, my tests are not by any means a benchmark, but I think they still provide good guidance. Depending on the level of required accuracy and training data, one approach may be preferable over the other.
+Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. Seemingly, this beats KNN, at least according to my tests. However, considering accuracy in identifying the digits does change the odds in my view. KNN reaches 95% accuracy with 20000 training points and 3 neighbors. KMC with 20000 training points and 200 clusters is faster with 75% of the KNN time, but identifies only 89% of the digits correctly. Even with 1000 clusters, KMC did reached only almost 93% accuracy, but in double the KNN time.
+
+Admittedly, my tests are not by any means a benchmark, but I think they still provide good guidance. Depending on the level of required accuracy and training data, one approach may be preferable over the other.
 
 |Training data|Neighbors|Test data|Test duration [ms]|Success|Error|
 |---:|---:|---:|---:|---:|---:|
