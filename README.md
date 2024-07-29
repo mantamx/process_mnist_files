@@ -107,10 +107,10 @@ Parameters are in the form name=value. The order of the arguments in the call to
 ```
 |Name|Value|
 |:---|:---|
-|path_train_images|..\..\..\MNIST_DATA\train-images.idx3-ubyte|
-|path_train_labels|..\..\..\MNIST_DATA\train-labels.idx1-ubyte|
-|path_test_images|..\..\..\MNIST_DATA\t10k-images.idx3-ubyte|
-|path_test_labels|..\..\..\MNIST_DATA\t10k-labels.idx1-ubyte|
+|path_train_images|..\\..\\..\MNIST_DATA\train-images.idx3-ubyte|
+|path_train_labels|..\\..\\..\MNIST_DATA\train-labels.idx1-ubyte|
+|path_test_images|..\\..\\..\MNIST_DATA\t10k-images.idx3-ubyte|
+|path_test_labels|..\\..\\..\MNIST_DATA\t10k-labels.idx1-ubyte|
 
 ## Output of the run, Windows release build
 ```
@@ -419,10 +419,10 @@ int main(int argument_count, char** arguments)
 
 |Name|Value|
 |:---|:---|
-|path_train_images|..\..\..\MNIST_DATA\train-images.idx3-ubyte|
-|path_train_labels|..\..\..\MNIST_DATA\train-labels.idx1-ubyte|
-|path_test_images|..\..\..\MNIST_DATA\t10k-images.idx3-ubyte|
-|path_test_labels|..\..\..\MNIST_DATA\t10k-labels.idx1-ubyte|
+|path_train_images|..\\..\\..\MNIST_DATA\train-images.idx3-ubyte|
+|path_train_labels|..\\..\\..\MNIST_DATA\train-labels.idx1-ubyte|
+|path_test_images|..\\..\\..\MNIST_DATA\t10k-images.idx3-ubyte|
+|path_test_labels|..\\..\\..\MNIST_DATA\t10k-labels.idx1-ubyte|
 |count_train|5000|
 |count_test|50|
 
@@ -615,10 +615,10 @@ int main(int argument_count, char** arguments)
 ```
 |Name|Value|
 |:---|:---|
-|path_train_images|..\..\..\MNIST_DATA\train-images.idx3-ubyte|
-|path_train_labels|..\..\..\MNIST_DATA\train-labels.idx1-ubyte|
-|path_test_images|..\..\..\MNIST_DATA\t10k-images.idx3-ubyte|
-|path_test_labels|..\..\..\MNIST_DATA\t10k-labels.idx1-ubyte|
+|path_train_images|..\\..\\..\MNIST_DATA\train-images.idx3-ubyte|
+|path_train_labels|..\\..\\..\MNIST_DATA\train-labels.idx1-ubyte|
+|path_test_images|..\\..\\..\MNIST_DATA\t10k-images.idx3-ubyte|
+|path_test_labels|..\\..\\..\MNIST_DATA\t10k-labels.idx1-ubyte|
 |train_count|25000|
 ## Output of the run, Windows release build
 ```
