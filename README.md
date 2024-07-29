@@ -59,11 +59,17 @@ The times in the table below provide only a rough comparison as my notebook runn
 
 A final point that I use an optimization by determining which features are zero accross all points of the training set. with more points in the training set the number or zero-features tends to decline. Centroid calculations are skipped for these features. For 20000 training points, 88 of the 784 features are zero accross all the points. For 40000 training points it is 71.
 
-|Training data|clusters|train duration [ms]|test data|test duration [ms]|success|error|
-|:---|:---|:---|:---|:---|:---|:---|
+|Training data|Clusters|Train duration [ms]|Test data|Test duration [ms]|Success|Error|
+|---:|---:|---:|---:|---:|---:|---:|
 |20000|400|7399011|10000|57297|9095|905|
 |20000|200|3428342|10000|31810|8922|1078|
 |40000|200|10271340|10000|35630|9073|927|
+
+Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. This seems to beat KNN, at least according to my tests. Admittedly, my tests are not by any means a benchmark, but I think they do provide a guidance.
+
+|Training data|Neighbors|Test data|Test duration [ms]|Success|Error|
+|---:|---:|---:|---:|---:|---:|
+|20000|3|10000|4599585|9565|435|
 
 ## Naïve Bayes Classifier
 _STARTED
