@@ -21,18 +21,18 @@ Implementation of Naïve Bayes Classifier as `class NaiveBayesClassifier` has st
 
 `main_knn.cpp`, `main_kmc.cpp`, and `main_mnist_handler.cpp` are example programs, sufficiently parameterized to experiment with the above classes.
 
-_Implementation wise, NaiveBayesClassifier is set up, but I'm still lacking understanding in some parts. Handling the counts and probabilities (though, probabilities will not be used in final calculations) is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set. I know to apply a Laplace correction for these zero counts, as well as the need to scale the data. But am unsure about a few small aspects around this yet._
+_Implementation wise, NaiveBayesClassifier is set up, but I still lack the level of understanding I need in some parts in order to autonomously implement NBC. Handling the counts and probabilities <!-- (though, probabilities will not be used in final calculations) --> is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set. I know to apply a Laplace correction for these zero counts, as well as the need to scale the data. But am yet unsure about a few aspects around this._
 
 _In parallel, while thinking on Naïve Bayes Classifier, I am also looking into understanding neural networks and have come quite far. This will help me in implementation of a basic and conventional neural network with perceptrons and a Sigmoid or ReLU activation function. I know the final layer must have 10 output nodes, the first layer has 784 inputs. Using back propagation to determine the weights and biases of the negative gradient of the cost function (in order to find the minimum of the cost function) is a welcome challenge that essentially boils down to structuring things properly._
 
-_By the way, the approach taken for the cost function for Neural Networks is the same total distance calculation that I have considered in my implementation of K-Means Clustering. With K-Means Clustering, only a value was calculated, and we tracked the percentage changes of the decreasing total distance / error / costs as one of few critieria to break out of the loop. With Neural Networks the calculation has dependencies on lots of weights and biases (the parameters), thus its a function with terms we have to estimate in order to find the minimum (or rather the smallest of a series of minima)._
+_By the way, the approach taken for the cost function for Neural Networks is the same total distance calculation that I have considered in my implementation of K-Means Clustering. With K-Means Clustering, a value is calculated as the sum of differences of Eucledean distances, and over iterations in which centroids are recalculated, the percentage changes of this decreasing total distance / error / cost is tracked, and it is one of few considered critieria to break out of the loop. With Neural Networks the cost function has dependencies on lots of weights and biases (the parameters of the Neural Network). Therefore, it is a function with terms we have to estimate in order to find the minimum (or rather the smallest of a series of minima)._
 
 ## K Nearest Neighbors
-There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the reference data, over and over, with nothing to cache, etc.
+There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the reference data, over and over, with nothing to cache.
 
-Therefore argument `-count_train` (see EXAMPLE.exe) has runtime impact.
+Therefore argument `-count_train` (see `main_knn.cpp`) has runtime impact.
 
-Also the distribution of points (images, each a vector in 784-dimensional space) plays a significant role in the outcome of the test. Due to the way I chose to process the data and model the dataset, I don't have the option to introduce an optional parameter to shuffle the training (or what I called reference) data. Can change this, but it's not necessary as I now understand the algorithm and know the effect of the distribution on the outcome. A way to compensate for this effect / dependency is, in my view, to increase `-k`.
+Also the distribution of points (images, each a vector in 784-dimensional space) plays a significant role in the outcome of the test. Due to the way I chose to process the data and model the dataset, I can't introduce an optional parameter to shuffle the training (or what I called reference) data. This can be changed, but it's not necessary as I now understand the algorithm and know the effect of the distribution on the outcome. A way to compensate for this effect / dependency is, in my view, to increase `-k`.
 
 ## K-Means Clustering
 Training is involved. Actually, it is calculating cluster centers. For this implementation, the number of clusters is parameterized, but I have sofar tested mainly with 10.
@@ -65,7 +65,7 @@ Overview of the training approach:
 
 It seems that the solution is simply to add clusters. Although, _simply_ entails increased processing time for all the calculations when training / defining and later using the clusters. What surprised me a lot was that with a cluster count of 200 the 10000 test points could be classified with 89% accuracy. Setting clusters to 400 did not change much. Testing the 10000 points is comparatively lightning fast.
 
-The times in the table below provide only a rough comparison as my notebook running Windows was not always entirely dedicated to the tests. For example, the test in 3rd run took 12% longer than the second run to complete, although both are based on 200 clusters.
+The times in the table below provide only a rough comparison as my notebook running Windows was not always entirely dedicated to the tests. For example, the test in the 3rd listed run took 12% longer to complete than the second run, although both are based on 200 clusters.
 
 A final point that I use an optimization by determining which features are zero accross all points of the training set. With more points in the training set the number of common zero-features tends to decline. Centroid calculations are skipped for these features. For 20000 training points, 88 of the 784 features are zero accross all the points. For 40000 training points it is 71.
 
@@ -77,16 +77,49 @@ A final point that I use an optimization by determining which features are zero 
 |20000|500|7133624|pct_chg_err|48|10000|76539|9185|815|
 |20000|1000|8054173|pct_chg_err|26|10000|244123|9277|723|
 
-Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. Seemingly, this beats KNN, at least according to my tests. However, considering accuracy in identifying the digits does change the odds in my view. KNN reaches 95% accuracy with 20000 training points and 3 neighbors. KMC with 20000 training points and 200 clusters is faster with 75% of the KNN time, but identifies only 89% of the digits correctly. Even with 1000 clusters, KMC did reached only almost 93% accuracy, but in double the KNN time.
+Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. Seemingly, this beats KNN, at least according to my tests. However, considering accuracy in identifying the digits does change the odds in my view. KNN reaches 95% accuracy with 20000 training points and 3 neighbors. KMC with 20000 training points and 200 clusters is faster with 75% of the KNN time, but identifies only 89% of the digits correctly. Even with 1000 clusters, KMC reached only almost 93% accuracy, but in double the KNN time.
 
-Admittedly, my tests are not by any means a benchmark, but I think they still provide good guidance. Depending on the level of required accuracy and training data, one approach may be preferable over the other.
+Admittedly, my tests are not by any means a benchmark, but I think they still provide good guidance. Depending on the level of required accuracy and the extent of the training data, one approach may be preferable over the other.
 
 |Training data|Neighbors|Test data|Test duration [ms]|Success|Error|
 |---:|---:|---:|---:|---:|---:|
 |20000|3|10000|4599585|9565|435|
 
 ## Naïve Bayes Classifier
-_STARTED
+We want to classify an image (in the test set). That is, we want to predict its class. Input is the test point's feature vector. With this input we work off the training set and calculate for each possible class C in the training set, the probability of that input feature vector belonging to C. The highest of such calculated probabilities determines the class we choose as prediction.
+
+**The main question to ask:**
+What is the probability of an image with these features being a 0. And this question has to be asked 10 times (for 0 through 9).
+
+**How to go about calculating the answer to one such question?**
+
+Bayes theorem + the naive assumption that the features are independent. This is the Naive Bayes Classifier.
+
+<Probability that the point has this feature vector (test set) and is a 0> x <Probability of 0's (in training set)> = <Probability that the point is 0 (in training set) and has that feature vector> x <Probability of that feature vector occurring (in training set)>
+
+**The same statement or equation with conditional aspects more clearly formulated:**
+
+P( {x<sub>i</sub>} | point is 0 ) x P( 0 ) = P( 0 | {x<sub>i</sub>} ) x P( {x<sub>i</sub>} )
+
+**Simplified:**
+
+P( B|A ) x P( A ) = P( A|B ) x P( B )
+
+**Notes:**
+
+Based on a feature vector B from the TEST set, we iterate over the TRAINING set.
+<!-- Therefore, in each iteration the P( A ) and P( B ) are identical, and they can be ignored. -->
+
+We have given feature vector B, test for P( B|A=0 ) by calculating P( A=0|B ) off the TRAINING set.
+In calculating P( B|A=0 ), the naive assumption of independence of the individual features B<sub>i</sub> in the feature vector B simplifies calculations by allowing us to (a) _independently_ calculate probability for each feature, and (b) multiply these probabilities with each other.
+
+We do this for all classes 0...9. The highest P( A|B ) is the prediction we choose.
+
+**Concerns:**
+
+Q: What happens if a feature B<sub>i</sub> does not occur in the TRAINING set? (The probability of zero should not invalidate this feature's calculation.)
+
+A: Laplace correction
 
 ## Neural Network
 _NOT STARTED
