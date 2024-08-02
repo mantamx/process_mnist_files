@@ -1,7 +1,7 @@
 # Motivation
 Idea was to get hands-on experience in AI, with C++. Cracking down on neural networks is my dream since quite a while. Yet, with no clue of what to do in form of a suitable test project I was lost before even embarking on the jourmey.
 
-Came accross MNIST files through **_gtaylor5_**. This saved me, because after one video of the series I had plenty of threads and insight. My brain was enthusiastically firing and I had to take off! Given the blueprint, I decided to write my implementation in order to understand what and where the challenges are.
+Came accross MNIST files through **_gtaylor5_**. This saved me, because after one video of the series I had plenty of threads and insight. My brain was enthusiastically firing and I had to take off! Given the blueprint, I decided to have my design and implementation in order to understand what and where the challenges are.
 
 Therefore, my task / test project: implement various approaches / techniques for interpreting handwritten digits using MNIST datasets.
 1. K Nearest Neighbors
