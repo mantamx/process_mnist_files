@@ -11,13 +11,21 @@ Therefore, my task / test project: implement various approaches / techniques for
 
 I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
 ## Current State of Implementation
+Implementing any of the approaches requires reading the MNIST files, `class MnistHandler`, and handling the data, `class MnistDataset`. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will have to follow along the way.
+
 K Nearest Neighbors, the easiest approach, is implemented as `class KNearestNeighbors`.
 
 K-Means Clustering is implemented as `class KMeansclustering`.
 
 Implementation of Naïve Bayes Classifier as `class NaiveBayesClassifier` has started, but nothing is checked in yet.
 
-Implementing any of the approaches requires reading the MNIST files, `class MnistHandler`, and handling the data, `class MnistDataset`. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will have to follow along the way.
+`main_knn.cpp`, `main_kmc.cpp`, and `main_mnist_handler.cpp` are example programs, sufficiently parameterized to experiment with the above classes.
+
+_Implementation wise, NaiveBayesClassifier is set up, but I'm still lacking understanding in some parts. Handling the counts and probabilities (though, probabilities will not be used in final calculations) is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set. I know to apply a Laplace correction for these zero counts, as well as the need to scale the data. But am unsure about a few small aspects around this yet._
+
+_In parallel, while thinking on Naïve Bayes Classifier, I am also looking into understanding neural networks and have come quite far. This will help me in implementation of a basic and conventional neural network with perceptrons and a Sigmoid or ReLU activation function. I know the final layer must have 10 output nodes, the first layer has 784 inputs. Using back propagation to determine the weights and biases of the negative gradient of the cost function (in order to find the minimum of the cost function) is a welcome challenge that essentially boils down to structuring things properly._
+
+_By the way, the approach taken for the cost function for Neural Networks is the same total distance calculation that I have considered in my implementation of K-Means Clustering. With K-Means Clustering, only a value was calculated, and we tracked the percentage changes of the decreasing total distance / error / costs as one of few critieria to break out of the loop. With Neural Networks the calculation has dependencies on lots of weights and biases (the parameters), thus its a function with terms we have to estimate in order to find the minimum (or rather the smallest of a series of minima)._
 
 ## K Nearest Neighbors
 There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the reference data, over and over, with nothing to cache, etc.
