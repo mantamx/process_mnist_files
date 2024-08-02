@@ -10,10 +10,12 @@ Therefore, my task / test project: implement various approaches / techniques for
 4. Neural Network
 
 I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
-## Implementation
-For now, K Nearest Neighbors, the easiest approach, is implemented as `class KNearestNeighbors`.
+## Current State of Implementation
+K Nearest Neighbors, the easiest approach, is implemented as `class KNearestNeighbors`.
 
-<span style="color: red;">A first version of K-Means Clustering is also checked in, though it seems to have flaws and needs thorough investigation.</span>
+K-Means Clustering is implemented as `class KMeansclustering`.
+
+Implementation of Naïve Bayes Classifier as `class NaiveBayesClassifier` has started, but nothing is checked in yet.
 
 Implementing any of the approaches requires reading the MNIST files, `class MnistHandler`, and handling the data, `class MnistDataset`. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will have to follow along the way.
 
