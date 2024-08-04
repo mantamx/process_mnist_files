@@ -3,7 +3,7 @@ Idea was to get hands-on experience in AI, with C++. Cracking down on neural net
 
 Came accross MNIST files through **_gtaylor5_**. This saved me, because after one video of the series I had plenty of threads and insight. My brain was enthusiastically firing and I had to take off! Given the blueprint, I decided to have my design and implementation in order to understand what and where the challenges are.
 
-Therefore, my first task is a test project, in which I implement various approaches and techniques for interpreting handwritten digits using MNIST datasets.
+Therefore, my first task is a test project, in which I implement a few approaches of interpreting handwritten digits based on the MNIST files.
 1. K Nearest Neighbors
 2. K-Means Clustering
 3. Naïve Bayes Classifier
