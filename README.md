@@ -106,6 +106,7 @@ P( {x<sub>i</sub>} | point is 0 ) x P( 0 ) = P( 0 | {x<sub>i</sub>} ) x P( {x<su
 P( B|A ) x P( A ) = P( A|B ) x P( B )
 
 **Notes:**
+
 A is what we want to classify. It is a feature vector.
 
 Based on a feature vector A from the TEST set, we iterate over the TRAINING set.
