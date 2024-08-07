@@ -106,18 +106,23 @@ P( {x<sub>i</sub>} | point is 0 ) x P( 0 ) = P( 0 | {x<sub>i</sub>} ) x P( {x<su
 P( B|A ) x P( A ) = P( A|B ) x P( B )
 
 **Notes:**
+A is what we want to classify. It is a feature vector.
 
-Based on a feature vector B from the TEST set, we iterate over the TRAINING set.
-<!-- Therefore, in each iteration the P( A ) and P( B ) are identical, and they can be ignored. -->
+Based on a feature vector A from the TEST set, we iterate over the TRAINING set.
 
-We have given feature vector B, test for P( B|A=0 ) by calculating P( A=0|B ) off the TRAINING set.
-In calculating P( B|A=0 ), the naive assumption of independence of the individual features B<sub>i</sub> in the feature vector B simplifies calculations by allowing us to (a) _independently_ calculate probability for each feature, and (b) multiply these probabilities with each other.
+P( A ) can be ignored, "_it is common to all classes (and we are only comparing the numbers for each class, the exact number doesn't matter)_".
 
-We do this for all classes 0...9. The highest P( A|B ) is the prediction we choose.
+We have given feature vector A, test for P( B|A=0 ) by calculating P( A=0|B ) off the TRAINING set.
+
+In calculating P( B|A=0 ), the naive assumption of independence of the individual features B_i in the feature vector B simplifies calculations by allowing us to (a) 'independently' calculate probability for each feature, and (b) multiply these probabilities with each other.
+
+We do this for all classes 0...9.
+
+The highest P( A|B ) x P( B ) is the prediction we choose.
 
 **Concerns:**
 
-Q: What happens if a feature B<sub>i</sub> does not occur in the TRAINING set? (The probability of zero should not invalidate this feature's calculation.)
+Q: What happens if a feature A<sub>i</sub> does not occur in the TRAINING set? (The probability of zero should not invalidate this feature's calculation.)
 
 A: Laplace correction
 
