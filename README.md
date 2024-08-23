@@ -20,8 +20,8 @@ Implementing any of the approaches requires [reading and handling MNIST files](.
 Implementation of [Naïve Bayes Classifier](./naive_bayes_classifier/README_NBC.md) as `class NaiveBayesClassifier` has started, but nothing is checked in yet.
 
 In folder EXAMPLES, `main_knn.cpp`, `main_kmc.cpp`, and `main_mnist_handler.cpp` are [example programs](./EXAMPLES/README_EXAMPLES.md) that are sufficiently parameterized to experiment with the above classes.
-
-Implementation wise, NaiveBayesClassifier is set up, but I still lack the level of understanding I need in some parts in order to autonomously implement NBC. Handling the counts and probabilities <!-- (though, probabilities will not be used in final calculations) --> is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set.
+#
+Implementation wise, `class NaiveBayesClassifier` is set up, but I still lack the level of understanding I need in some parts in order to autonomously implement NBC. Handling the counts and probabilities <!-- (though, probabilities will not be used in final calculations) --> is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set.
 I know to apply a **Laplace correction** for these zero counts, as well as the need to scale the data. But am yet unsure about a few aspects around this.
 
 In parallel, while thinking on Naïve Bayes Classifier, I am also looking into understanding neural networks and have come quite far. This will help me in implementation of a basic and conventional neural network with perceptrons and a Sigmoid or ReLU activation function. I know the final layer must have 10 output nodes, the first layer has 784 inputs. Using back propagation to determine the weights and biases of the negative gradient of the cost function (in order to find the minimum of the cost function) is a welcome challenge that essentially boils down to structuring things properly.
