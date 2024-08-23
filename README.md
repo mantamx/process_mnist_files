@@ -19,8 +19,11 @@ Implementing any of the approaches requires [reading and handling MNIST files](.
 
 Implementation of [Naïve Bayes Classifier](./naive_bayes_classifier/README_NBC.md) as `class NaiveBayesClassifier` has started, but nothing is checked in yet.
 
+Implementation of _Neural Network_ has not started.
+
 In folder EXAMPLES, `main_knn.cpp`, `main_kmc.cpp`, and `main_mnist_handler.cpp` are [example programs](./EXAMPLES/README_EXAMPLES.md) that are sufficiently parameterized to experiment with the above classes.
-#
+
+### NBC and NN
 Implementation wise, `class NaiveBayesClassifier` is set up, but I still lack the level of understanding I need in some parts in order to autonomously implement NBC. Handling the counts and probabilities <!-- (though, probabilities will not be used in final calculations) --> is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set.
 I know to apply a **Laplace correction** for these zero counts, as well as the need to scale the data. But am yet unsure about a few aspects around this.
 
