@@ -3,13 +3,13 @@ These are my playgrounds, and they helped me a lot to feel the intrinsics of KNN
 Initially, there was only one binary in the folder EXAMPLE. But due to developments on K-Means Clustering, I found it better to have separate examples, still all in the folder EXAMPLES.
 Hence a series of `main_*.cpp` files. Plus, to streamline handling of arguments, their respective checks, and generation of call syntax, arg.hpp is new.
 
-* main_mnist_handler.cpp
-* main_knn.cpp
-* main_kmc.cpp
+* [main_mnist_handler.cpp](#example_mnist_handler)
+* [main_knn.cpp](#example_knn)
+* [main_kmc.cpp](#example_kmc)
 
 ## EXAMPLE_MNIST_HANDLER
 
-## Parameters of main()
+### Parameters of main()
 Parameters are in the form name=value. The order of the arguments in the call to main() is not relevant for their processing, and therefore name= must be provided for the argument to be identified. Some parameters have default values.
 
 |Name|Description|
@@ -19,7 +19,7 @@ Parameters are in the form name=value. The order of the arguments in the call to
 |path_test_images|interpreted as string; path to MNIST binary file with test image data|
 |path_test_labels|interpreted as string; path to test file with labels|
 
-## Arguments of the run
+### Arguments of the run
 ```
 .\EXAMPLE_MNIST_HANDLER.exe path_train_images=..\..\..\MNIST_DATA\train-images.idx3-ubyte path_train_labels=..\..\..\MNIST_DATA\train-labels.idx1-ubyte path_test_images=..\..\..\MNIST_DATA\t10k-images.idx3-ubyte path_test_labels=..\..\..\MNIST_DATA\t10k-labels.idx1-ubyte
 ```
@@ -30,7 +30,7 @@ Parameters are in the form name=value. The order of the arguments in the call to
 |path_test_images|..\\..\\..\MNIST_DATA\t10k-images.idx3-ubyte|
 |path_test_labels|..\\..\\..\MNIST_DATA\t10k-labels.idx1-ubyte|
 
-## Output of the run, Windows release build
+### Output of the run, Windows release build
 ```
 main(): in
 main(): reading 4 files: training images, training labels, test images, test labels...
@@ -264,7 +264,7 @@ main(): out
 
 ## EXAMPLE_KNN
 
-## Parameters of main()
+### Parameters of main()
 
 |Name|Description|
 |:---|:---|
@@ -277,7 +277,7 @@ main(): out
 |test_count|interpreted as integer; number of records from test data to test, defaults to 50|
 |output_mode|interpreted as string; defaults to "delimited", range: "delimited", "pretty"|
 
-## Arguments of the run
+### Arguments of the run
 This is the command line:
 ```
 .\EXAMPLE_KNN.exe path_train_images=..\..\..\MNIST_DATA\train-images.idx3-ubyte path_train_labels=..\..\..\MNIST_DATA\train-labels.idx1-ubyte path_test_images=..\..\..\MNIST_DATA\t10k-images.idx3-ubyte path_test_labels=..\..\..\MNIST_DATA\t10k-labels.idx1-ubyte train_count=5000 test_count=50
@@ -344,7 +344,7 @@ int main(int argument_count, char** arguments)
 |count_train|5000|
 |count_test|50|
 
-## Output of the run, Windows release build
+### Output of the run, Windows release build
 ```
 main(): in
 argument check: setting 'k' to default 3
@@ -436,7 +436,7 @@ main(): out
 
 <span style="color: red;">As mentioned above, my implementation of K-Means Clustering seems to have flaws. Since I am new to this, am still discovering as I progress.</span>
 
-## Parameters of main()
+### Parameters of main()
 
 |Name|Description|
 |:---|:---|
@@ -452,7 +452,7 @@ main(): out
 |test_count|interpreted as integer; number of records from test data to test, defaults to 50|
 |output_mode|interpreted as string; defaults to "delimited", range: "delimited", "pretty"|
 
-## Arguments of the run
+### Arguments of the run
 5 of the 11 arguments provided via command line. For the remaining 6, default values are used.
 This is the command line:
 ```
@@ -538,7 +538,7 @@ int main(int argument_count, char** arguments)
 |path_test_images|..\\..\\..\MNIST_DATA\t10k-images.idx3-ubyte|
 |path_test_labels|..\\..\\..\MNIST_DATA\t10k-labels.idx1-ubyte|
 |train_count|25000|
-## Output of the run, Windows release build
+### Output of the run, Windows release build
 ```
 main(): in
 argument check: setting 'train_exit_on_percentage' to default 0.002
