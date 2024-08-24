@@ -1,4 +1,4 @@
-## K-Means Clustering
+# K-Means Clustering
 Training is involved. Actually, it is calculating cluster centers. For this implementation, the number of clusters is parameterized, but I have sofar tested mainly with 10.
 
 As with K Nearest Neighbors, the EXAMPLE app is sufficiently parameterized to allow for playing around with arguments in order to have a better feeling. So far my testing has been to verify the functionality is correct. To better establish a feeling for interaction of arguments in run-time and outcome, I need to play around more.
