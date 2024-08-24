@@ -9,9 +9,10 @@ Therefore, my first task is a test project, in which I implement a few approache
 3. Naïve Bayes Classifier
 4. Neural Network
 
-I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
+Dealing with the MNIST files is the **_Hello World of Machine Learning_**, and I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
+
 ## Current State of Implementation
-Implementing any of the approaches requires [reading and handling MNIST files](./mnist_idx_ubyte/README_MNIST_IDX.md), implemented in `class MnistHandler` and `class MnistDataset`, respectively. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will have to follow along the way.
+Implementing any of the approaches requires [reading and handling MNIST files](./mnist_idx_ubyte/README_MNIST_IDX.md), implemented in `class MnistHandler` and `class MnistDataset`, respectively. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will follow along the way.
 
 [K Nearest Neighbors](./k_nearest_neighbors/README_KNN.md), the easiest approach, is implemented as `class KNearestNeighbors`.
 
@@ -25,8 +26,8 @@ In folder EXAMPLES, `main_knn.cpp`, `main_kmc.cpp`, and `main_mnist_handler.cpp`
 
 ### NBC and NN
 Implementation wise, `class NaiveBayesClassifier` is set up, but I still lack the level of understanding I need in some parts in order to autonomously implement NBC. Handling the counts and probabilities <!-- (though, probabilities will not be used in final calculations) --> is OK, but I'm trying to come to terms with how to deal with feature values of test images that have not occurred in the training set.
-I know to apply a **Laplace correction** for these zero counts, as well as the need to scale the data. But am yet unsure about a few aspects around this.
+I know to apply a **_Laplace correction_** for these zero counts, as well as the need to scale the data. But am yet unsure about a few aspects around this.
 
-In parallel, while thinking on Naïve Bayes Classifier, I am also looking into understanding neural networks and have come quite far. This will help me in implementation of a basic and conventional neural network with perceptrons and a Sigmoid or ReLU activation function. I know the final layer must have 10 output nodes, the first layer has 784 inputs. Using back propagation to determine the weights and biases of the negative gradient of the cost function (in order to find the minimum of the cost function) is a welcome challenge that essentially boils down to structuring things properly.
+In parallel, while thinking on Naïve Bayes Classifier, I am also looking into understanding Neural Networks and have come quite far. This will help me in implementation of a basic and conventional neural network with perceptrons and a Sigmoid or ReLU activation function. I know the final layer must have 10 output nodes, the first layer has 784 inputs. Using back propagation to determine the weights and biases of the negative gradient of the cost function (in order to find the minimum of the cost function) is a welcome challenge that essentially boils down to structuring things properly.
 
-By the way, the approach taken for the cost function for Neural Networks is the same total distance calculation that I have considered in my implementation of K-Means Clustering. With K-Means Clustering, a value is calculated as the sum of differences of Eucledean distances, and over iterations in which centroids are recalculated, the percentage changes of this decreasing total distance / error / cost is tracked, and it is one of few considered critieria to break out of the loop. With Neural Networks the cost function has dependencies on lots of weights and biases (the parameters of the Neural Network). Therefore, it is a function with terms that have to be estimated in order to find the minimum (or rather the smallest of a series of minima).
+By the way, the approach taken for the cost function for Neural Networks is the same total distance calculation that I have considered in my implementation of K-Means Clustering. With K-Means Clustering, a value is calculated as the sum of differences of Eucledean distances, and over iterations in which centroids are recalculated, the percentage changes of this decreasing _total distance_ / _error_ / _cost_ is tracked, and it is one of few considered critieria to break out of the loop. With Neural Networks the cost function has dependencies on lots of weights and biases (the parameters of the Neural Network). Therefore, it is a function with terms that have to be estimated in order to find the minimum (or rather the smallest of a series of minima).
