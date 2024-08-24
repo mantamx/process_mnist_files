@@ -1,7 +1,7 @@
-# Motivation
-Idea was to get hands-on experience in AI, with C++. Cracking down on neural networks is my dream since quite a while. Yet, with no clue of what to do in form of a suitable test project I was lost before even embarking on the jourmey.
+# Processing MNIST Files
+My motivation was the idea to get hands-on experience in AI, with C++. Cracking down on neural networks is my dream since quite a while. Yet, with no clue of what to do in form of a suitable and realistic test project along with training and test data I was lost before even embarking on the jourmey.
 
-Came accross MNIST files through **_gtaylor5_**. This saved me, because after one video of the series I had plenty of threads and insight. My brain was enthusiastically firing and I had to take off! Given the blueprint, I decided to have my design and implementation in order to understand what and where the challenges are.
+I came accross MNIST files through **_gtaylor5_**. This saved me, because after one video of the series I had plenty of threads and insight. My brain was enthusiastically firing and I had to take off! Given the blueprint, I decided to have my design and implementation in order to understand what and where the challenges are.
 
 Therefore, my first task is a test project, in which I implement a few approaches of interpreting handwritten digits based on the MNIST files.
 1. K Nearest Neighbors
@@ -9,10 +9,10 @@ Therefore, my first task is a test project, in which I implement a few approache
 3. Naïve Bayes Classifier
 4. Neural Network
 
-Dealing with the MNIST files is the **_Hello World of Machine Learning_**, and I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a plan, because I am taking action, finally.
+Dealing with the MNIST files is the **_Hello World of Machine Learning_**, and I'm learning as I progress through the points, and it's great! The dream I mentioned has turned into a goal, because I am taking action, finally.
 
 ## Current State of Implementation
-Implementing any of the approaches requires [reading and handling MNIST files](./mnist_idx_ubyte/README_MNIST_IDX.md), implemented in `class MnistHandler` and `class MnistDataset`, respectively. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will follow along the way.
+Implementing any of the approaches requires [reading and using MNIST files](./mnist_idx_ubyte/README_MNIST_IDX.md), implemented in `class MnistHandler` and `class MnistDataset`, respectively. I think they are good and final for all of the approaches. In case I'm wrong, necessary changes will follow along the way.
 
 [K Nearest Neighbors](./k_nearest_neighbors/README_KNN.md), the easiest approach, is implemented as `class KNearestNeighbors`.
 
