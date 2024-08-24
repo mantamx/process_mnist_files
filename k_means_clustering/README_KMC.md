@@ -41,7 +41,8 @@ A final point that I use an optimization by determining which features are zero 
 |20000|500|7133624|pct_chg_err|48|10000|76539|9185|815|
 |20000|1000|8054173|pct_chg_err|26|10000|244123|9277|723|
 
-Comparison with KNN. Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. Seemingly, this beats KNN, at least according to my tests. However, considering accuracy in identifying the digits does change the odds in my view. KNN reaches 95% accuracy with 20000 training points and 3 neighbors. KMC with 20000 training points and 200 clusters is faster with 75% of the KNN time, but identifies only 89% of the digits correctly. Even with 1000 clusters, KMC reached only almost 93% accuracy, but in double the KNN time.
+## Comparison with KNN
+Although the training of KMC takes quite some time, the testing is a walk in the park in terms of number of calculations. Seemingly, this beats KNN, at least according to my tests. However, considering accuracy in identifying the digits does change the odds in my view. KNN reaches 95% accuracy with 20000 training points and 3 neighbors. KMC with 20000 training points and 200 clusters is faster with 75% of the KNN time, but identifies only 89% of the digits correctly. Even with 1000 clusters, KMC reached only almost 93% accuracy, but in double the KNN time.
 
 Admittedly, my tests are not by any means a benchmark, but I think they still provide good guidance. Depending on the level of required accuracy and the extent of the training data, one approach may be preferable over the other.
 
