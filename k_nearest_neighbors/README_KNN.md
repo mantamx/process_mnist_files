@@ -1,4 +1,4 @@
-## K Nearest Neighbors
+# K Nearest Neighbors
 There is no training involved with KNN. It is computationally intensive as it calculates distances from a test point to the reference data, over and over, with nothing to cache.
 
 Therefore argument `-count_train` (see `main_knn.cpp`) has runtime impact.
